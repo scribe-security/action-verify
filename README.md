@@ -1,7 +1,7 @@
 ---
-title: Bom
+title: Bom Verify
 ---
-# Scribe GitHub actions - `gensbom bom`
+# Scribe GitHub actions - `gensbom verify`
 Scribe offers GitHub actions for embedding evidence collecting and integrity verification to your workflows. \
 Action 
 
@@ -10,18 +10,14 @@ Action
 * [verify - action](https://github.com/scribe-security/action-verify/README.md)
 * [installer - action](https://github.com/scribe-security/action-installer/README.md)
 
-## Bom action
-The action invokes a containerized `gensbom` sub-command `bom`. 
-The command allows users to generate and manage SBOMs.
-- GitHub-specific context attached to all SBOMs (GIT_URL, JOB_ID, JOB_NAME .. etc)
-- Signing SBOMs, supporting Sigstore keyless flow while using GitHub's workload auth ODIC identity.
-- Generates detailed SBOMs for images, directories, files and git repositories. 
-- Store and manage SBOMs on Scribe service.
-- Attach SBOM in your CI or releases.
-- Generate SBOM directly from your private OCI registry support.
-- Customizable SBOM with environments, labels, sections, etc.
-- Attach external reports to your SBOM.
-- Generate In-Toto attestation, statement or predicate for your SBOMs.
+## Verify action
+The action invokes a containerized `gensbom` sub-command `verify`.
+The command allows users to verify an image via a signed attestation (In-toto).
+- Signed SBOM supports, the action will verify Sigstore keyless flow (Fulcio CA + Rekor log) while using GitHub (See example below).
+- Verify signer identity, for example, GitHub workflow ids.
+- Download attestations (signed SBOMs) from Scribe service.
+- Verify attestations via OPA/CUE policies (see cocosign documentation).
+- Verify the trust of an image, directory, file or git repository.
 
 ### Input arguments
 ```yaml
@@ -36,28 +32,17 @@ The command allows users to generate and manage SBOMs.
     default: 1
   config:
     description: 'Application config file'
-  format:
-    description: 'Sbom formatter, options=[cyclonedx-json cyclonedx-xml attest-cyclonedx-json statement-cyclonedx-json predicate-cyclonedx-json attest-slsa statement-slsa predicate-slsa]'
-    default: cyclonedxjson
+  input-format:
+    description: 'Sbom input formatter, options=[attest-cyclonedx-json attest-slsa] (default "attest-cyclonedx-json")'
+    default: attest-cyclonedx-json
   output-directory:
-    description: 'Report output directory'
+    description: 'report output directory'
     default: ./scribe/gensbom
   output-file:
     description: 'Output result to file'
-  name:
-    description: 'Custom/project name'
-  label:
-    description: 'Custom label'
-  env:
-    description: 'Custom env'
   filter-regex:
     description: 'Filter out files by regex'
     default: .*\.pyc,\.git/.*
-  collect-regex:
-    description: 'Collect files content by regex'
-  force:
-    description: 'Force overwrite cache'
-    default: false
   attest-config:
     description: 'Attestation config map'
   attest-name:
@@ -65,38 +50,21 @@ The command allows users to generate and manage SBOMs.
   attest-default:
     description: 'Attestation default config, options=[sigstore sigstore-github x509]'
     default: sigstore-github
-  scribe-enable:
-    description: 'Enable scribe client'
-    default: false
-  scribe-client-id:
-    description: 'Scribe client id' 
-  scribe-client-secret:
-    description: 'Scribe access token' 
-  scribe-url:
-    description: 'Scribe url' 
-  context-dir:
-    description: 'Context dir' 
-```
-
-### Output arguments
-```yaml
-  output-file:
-    description: 'Bom output file path'
 ```
 
 ### Usage
 ```
-- name: Generate cyclonedx json SBOM
-  uses: scribe-security/action-bom@master
+- name: Gensbom verify
+  id: gensbom_verify
+  uses: scribe-security/actions/installer@master
   with:
-    target: 'busybox:latest'
-    verbose: 2
+      target: 'busybox:latest'
+      verbose: 2
 ```
 
 ## Configuration
 Use default configuration path `.gensbom.yaml`, or
 provide a custom path using `config` input argument.
-See detailed [documentation -](docs/configuration.md) config](docs/configuration.md)
 
 You may add a `.cocosign.yaml` file to your repository or pass it with `--`config` \
 for more [Cocosign configuration](https://github.com/scribe-security/cocosign)
@@ -117,372 +85,11 @@ provide custom path using `attest-config` input argument.
 See details [documentation - attestation](docs/attestations.md) \
 Source see [cocosign](https://github.com/scribe-security/cocosign), attestation manager
 
-
-
 ## .gitignore
 Recommended to add output directory value to your .gitignore file.
 By default add `**/scribe` to your `.gitignore`.
 
-# Integrations
-## Scribe service integration
-Scribe provides a set of services to store, verify and manage the supply chain integrity. \
-Following are some integration examples.
-
-Scribe integrity flow - upload evidence using `gensbom` and download the integrity report using `valint`. \
-You may collect evidence anywhere in your workflows.
-
-<details>
-  <summary>  Scribe integrity report - full workflow </summary>
-
-Full workflow example of a workflow, upload evidence using gensbom and download report using Valint.
-
-```YAML
-name: example workflow
-
-on: 
-  push:
-    tags:
-      - "*"
-
-jobs:
-  scribe-report-test:
-    runs-on: ubuntu-latest
-    steps:
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - uses: actions/checkout@v3
-        with:
-          repository: mongo-express/mongo-express
-          ref: refs/tags/v1.0.0-alpha.4
-          path: mongo-express-scm
-
-      - name: gensbom Scm generate bom, upload to scribe
-        id: gensbom_bom_scm
-        uses: scribe-security/action-bom@master
-        with:
-           type: dir
-           target: 'mongo-express-scm'
-           verbose: 2
-           scribe-enable: true
-           product-key:  ${{ secrets.product-key }}
-           scribe-client-id: ${{ secrets.client-id }}
-           scribe-client-secret: ${{ secrets.client-secret }}
-
-      - name: Build and push remote
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: mongo-express:1.0.0-alpha.4
-
-      - name: gensbom Image generate bom, upload to scribe
-        id: gensbom_bom_image
-        uses: scribe-security/action-bom@master
-        with:
-           target: 'mongo-express:1.0.0-alpha.4'
-           verbose: 2
-           scribe-enable: true
-           product-key:  ${{ secrets.product-key }}
-           scribe-client-id: ${{ secrets.client-id }}
-           scribe-client-secret: ${{ secrets.client-secret }}
-
-      - name: Valint - download report
-        id: valint_report
-        uses: scribe-security/actions/valint/report@master
-        with:
-           verbose: 2
-           scribe-enable: true
-           product-key:  ${{ secrets.product-key }}
-           scribe-client-id: ${{ secrets.client-id }}
-           scribe-client-secret: ${{ secrets.client-secret }}
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: scribe-reports
-          path: |
-            ${{ steps.gensbom_bom_scm.outputs.OUTPUT_PATH }}
-            ${{ steps.gensbom_bom_image.outputs.OUTPUT_PATH }}
-            ${{ steps.valint_report.outputs.OUTPUT_PATH }}
-```
-</details>
-
-
-<details>
-  <summary>  Scribe integrity report - Multi workflow </summary>
-
-Full workflow example of a workflow, upload evidence using gensbom and download report using valint
-
-```YAML
-name: example workflow
-
-on: 
-  push:
-    tags:
-      - "*"
-
-jobs:
-  scribe-report-test:
-    runs-on: ubuntu-latest
-    steps:
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - uses: actions/checkout@v3
-        with:
-          repository: mongo-express/mongo-express
-          ref: refs/tags/v1.0.0-alpha.4
-          path: mongo-express-scm
-
-      - name: Build and push remote
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: mongo-express:1.0.0-alpha.4
-
-      - name: gensbom Image generate bom, upload to scribe
-        id: gensbom_bom_image
-        uses: scribe-security/action-bom@master
-        with:
-           target: 'mongo-express:1.0.0-alpha.4'
-           verbose: 2
-           scribe-enable: true
-           product-key:  ${{ secrets.product-key }}
-           scribe-client-id: ${{ secrets.client-id }}
-           scribe-client-secret: ${{ secrets.client-secret }}
-
-      - name: Valint - download report
-        id: valint_report
-        uses: scribe-security/actions/valint/report@master
-        with:
-           verbose: 2
-           scribe-enable: true
-           product-key:  ${{ secrets.product-key }}
-           scribe-client-id: ${{ secrets.client-id }}
-           scribe-client-secret: ${{ secrets.client-secret }}
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: scribe-reports
-          path: |
-            ${{ steps.gensbom_bom_scm.outputs.OUTPUT_PATH }}
-            ${{ steps.gensbom_bom_image.outputs.OUTPUT_PATH }}
-            ${{ steps.valint_report.outputs.OUTPUT_PATH }}
-```
-</details>
-
-## Integrity report examples
-<details>
-  <summary>  Scribe integrity report </summary>
-
-Valint downloading integrity report from scribe service
-
-```YAML
-  - name: Valint - download report
-    id: valint_report
-    uses: scribe-security/actions/valint/report@master
-    with:
-        verbose: 2
-        scribe-enable: true
-        product-key:  ${{ secrets.product-key }}
-        scribe-client-id: ${{ secrets.client-id }}
-        scribe-client-secret: ${{ secrets.client-secret }}
-```
-</details>
-
-<details>
-  <summary>  Scribe integrity report, select section </summary>
-
-Valint downloading integrity report from scribe service
-
-```YAML
-  - name: Valint - download report
-    id: valint_report
-    uses: scribe-security/actions/valint/report@master
-    with:
-        verbose: 2
-        scribe-enable: true
-        product-key:  ${{ secrets.product-key }}
-        scribe-client-id: ${{ secrets.client-id }}
-        scribe-client-secret: ${{ secrets.client-secret }}
-        section: packages
-```
-</details>
-
-## Generating SBOMs examples
-<details>
-  <summary>  Public registry image </summary>
-
-Create SBOM from remote `busybox:latest` image, skip if found by the cache.
-
-```YAML
-- name: Generate cyclonedx json SBOM
-  uses: scribe-security/action-bom@master
-  with:
-    target: 'busybox:latest'
-    format: json
-``` 
-</details>
-
-<details>
-  <summary>  Docker built image </summary>
-
-Create SBOM for image built by local docker `image_name:latest` image, overwrite cache.
-
-```YAML
-- name: Generate cyclonedx json SBOM
-  uses: scribe-security/action-bom@master
-  with:
-    type: docker
-    target: 'image_name:latest'
-    format: json
-    force: true
-``` 
-</details>
-
-<details>
-  <summary>  Private registry image </summary>
-
-Custom private registry, skip cache (using `Force`), output verbose (debug level) log output.
-```YAML
-- name: Generate cyclonedx json SBOM
-  uses: scribe-security/action-bom@master
-  with:
-    target: 'scribesecuriy.jfrog.io/scribe-docker-local/stub_remote:latest'
-    verbose: 2
-    force: true
-```
-</details>
-
-<details>
-  <summary>  Custom SBOM metadata </summary>
-
-Custom metadata added to SBOM
-Data will be included in the signed payload when the output is an attestation.
-```YAML
-- name: Generate cyclonedx json SBOM - add metadata - labels, envs, name
-  id: gensbom_labels
-  uses: scribe-security/action-bom@master
-  with:
-      target: 'busybox:latest'
-      verbose: 2
-      format: json
-      force: true
-      name: name_value
-      env: test_env
-      label: test_label
-  env:
-    test_env: test_env_value
-```
-</details>
-
-
-<details>
-  <summary> Save SBOM as artifact </summary>
-
-Using action `output_path` you can access the generated SBOM and store it as an artifact.
-```YAML
-- name: Generate cyclonedx json SBOM
-  id: gensbom_json
-  uses: scribe-security/action-bom@master
-  with:
-    target: 'busybox:latest'
-    format: json
-
-- uses: actions/upload-artifact@v2
-  with:
-    name: gensbom-busybox-output-test
-    path: ${{ steps.gensbom_json.outputs.OUTPUT_PATH }}
-``` 
-</details>
-
-<details>
-  <summary> Save SLSA provenance statement as artifact </summary>
-Using action `output_path` you can access the generated SBOM and store it as an artifact.
-
-```YAML
-- name: Generate SLSA provenance statement
-  id: gensbom_slsa_statement
-  uses: scribe-security/action-bom@master
-  with:
-    target: 'busybox:latest'
-    format: statement-slsa
-
-- uses: actions/upload-artifact@v2
-  with:
-    name: scribe-evidence
-    path: ${{ steps.gensbom_slsa_statement.outputs.OUTPUT_PATH }}
-``` 
-</details>
-
-<details>
-  <summary> Docker archive image </summary>
-
-Create SBOM from local `docker save ...` output.
-```YAML
-- name: Build and save local docker archive
-  uses: docker/build-push-action@v2
-  with:
-    context: .
-    file: .GitHub/workflows/fixtures/Dockerfile_stub
-    tags: scribesecuriy.jfrog.io/scribe-docker-public-local/stub_local:latest
-    outputs: type=docker,dest=stub_local.tar
-
-- name: Generate cyclonedx json SBOM
-  uses: scribe-security/action-bom@master
-  with:
-    type: docker-archive
-    target: '/GitHub/workspace/stub_local.tar'
-``` 
-</details>
-
-<details>
-  <summary> OCI archive image </summary>
-
-Create SBOM from the local oci archive.
-
-```YAML
-- name: Build and save local oci archive
-  uses: docker/build-push-action@v2
-  with:
-    context: .
-    file: .GitHub/workflows/fixtures/Dockerfile_stub
-    tags: scribesecuriy.jfrog.io/scribe-docker-public-local/stub_local:latest
-    outputs: type=docker,dest=stub_oci_local.tar
-
-- name: Generate cyclonedx json SBOM
-  uses: scribe-security/action-bom@master
-  with:
-    type: oci-archive
-    target: '/GitHub/workspace/stub_oci_local.tar'
-``` 
-</details>
-
-<details>
-  <summary> Directory target </summary>
-
-Create SBOM from a local directory. \
-Note directory must be mapped to working dir for actions to access (containerized action).
-
-```YAML
-- name: Create dir
-  run: |
-    mkdir testdir
-    echo "test" > testdir/test.txt
-
-- name: gensbom attest dir
-  id: gensbom_attest_dir
-  uses: scribe-security/action-bom@master
-  with:
-    type: dir
-    target: '/GitHub/workspace/testdir'
-``` 
-</details>
+## Verify SBOMs examples
 
 <details>
   <summary> Attest target (BOM) </summary>
