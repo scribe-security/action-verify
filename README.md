@@ -1,5 +1,5 @@
 ---
-title: Bom Verify
+title: Verify
 ---
 # Scribe action for `gensbom bom`
 Scribe offers GitHub actions for embedding evidence collecting and validated integrity of your supply chain. \
