@@ -36,7 +36,7 @@ inputs:
 
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/gensbom:latest 
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/gensbom:dev-latest 
   args:
     - verify
     - ${{ inputs.type }}:${{ inputs.target }}
