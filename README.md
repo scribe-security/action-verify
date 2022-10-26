@@ -62,7 +62,7 @@ The command allows users to verify an image via a signed attestation (In-toto).
 ```
 - name: Gensbom verify
   id: gensbom_verify
-  uses: scribe-security/actions/installer@master
+  uses: scribe-security/action-installer@master
   with:
       target: 'busybox:latest'
       verbose: 2
@@ -152,7 +152,7 @@ gensbom will look for both a bom or slsa attestation to verify against
 
 ```YAML
 - name: gensbom verify
-  uses: scribe-security/actions/gensbom/verify@master
+  uses: scribe-security/action-verify@master
   with:
     target: 'busybox:latest'
 ``` 
@@ -169,7 +169,7 @@ gensbom will look for both a bom or slsa attestation to verify against
 
 ```YAML
 - name: gensbom verify
-  uses: scribe-security/actions/gensbom/verify@master
+  uses: scribe-security/action-verify@master
   with:
     target: 'busybox:latest'
     input-format: attest-slsa
@@ -206,7 +206,7 @@ Full job example of a image signing and verifying flow.
 
       - name: gensbom verify
         id: gensbom_verify
-        uses: scribe-security/actions/gensbom/verify@master
+        uses: scribe-security/action-verify@master
         with:
            target: 'busybox:latest'
            verbose: 2
@@ -248,7 +248,7 @@ Full job example of a image signing and verifying flow.
 
       - name: gensbom verify attest slsa
         id: gensbom_verify
-        uses: scribe-security/actions/gensbom/verify@master
+        uses: scribe-security/action-verify@master
         with:
            target: 'busybox:latest'
            input-format: attest-slsa
@@ -292,7 +292,7 @@ Full job example of a directory signing and verifying flow.
 
       - name: gensbom verify workdir
         id: gensbom_verify_dir
-        uses: scribe-security/actions/gensbom/verify@master
+        uses: scribe-security/action-verify@master
         with:
            type: dir
            target: '/GitHub/workspace/'
