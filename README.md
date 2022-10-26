@@ -8,16 +8,18 @@ Action
 ## Other actions
 * [bom - action](https://github.com/scribe-security/action-bom/README.md)
 * [verify - action](https://github.com/scribe-security/action-verify/README.md)
+* [integrity report - action](https://github.com/scribe-security/action-report/README.md)
 * [installer - action](https://github.com/scribe-security/action-installer/README.md)
 
 ## Verify action
-The action invokes a containerized `gensbom` sub-command `verify`.
+Action for `gensbom verify`.
 The command allows users to verify an image via a signed attestation (In-toto).
+- Verify targets using signed sbom, SLSA provanence attestations.
 - Signed SBOM supports, the action will verify Sigstore keyless flow (Fulcio CA + Rekor log) while using GitHub (See example below).
 - Verify signer identity, for example, GitHub workflow ids.
 - Download attestations (signed SBOMs) from Scribe service.
 - Verify attestations via OPA/CUE policies (see cocosign documentation).
-- Verify the trust of an image, directory, file or git repository.
+- Verify the trust of target images, directories, files or git repositories.
 
 ### Input arguments
 ```yaml
@@ -67,7 +69,7 @@ Use default configuration path `.gensbom.yaml`, or
 provide a custom path using `config` input argument.
 
 You may add a `.cocosign.yaml` file to your repository or pass it with `--`config` \
-for more [Cocosign configuration](https://github.com/scribe-security/cocosign)
+<!-- for more [Cocosign configuration](https://github.com/scribe-security/cocosign) -->
 
 
 ## Attestations 
@@ -83,7 +85,7 @@ Use default configuration path `.cocosign.yaml`, or
 provide custom path using `attest-config` input argument.
 
 See details [documentation - attestation](docs/attestations.md) \
-Source see [cocosign](https://github.com/scribe-security/cocosign), attestation manager
+<!-- Source see [cocosign](https://github.com/scribe-security/cocosign), attestation manager -->
 
 ## .gitignore
 Recommended to add output directory value to your .gitignore file.
@@ -313,22 +315,5 @@ Install gensbom as a tool
   run: |
     gensbom --version
     gensbom bom busybox:latest -vv
-``` 
-</details>
-
-<details>
-  <summary> Install Valint (tool) </summary>
-
-Install Valint as a tool
-```YAML
-- name: install gensbom
-  uses: scribe-security/actions/gensbom/installer@master
-  with:
-    tool: valint
-
-- name: valint run
-  run: |
-    valint --version
-    valint report --scribe.client-id $SCRIBE_CLIENT_ID $SCRIBE_CLIENT_SECRET
 ``` 
 </details>
