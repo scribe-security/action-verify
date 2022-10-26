@@ -1,9 +1,13 @@
 ---
 title: Bom Verify
 ---
-# Scribe GitHub actions - `gensbom verify`
-Scribe offers GitHub actions for embedding evidence collecting and integrity verification to your workflows. \
-Action 
+# Scribe action for `gensbom bom`
+Scribe offers GitHub actions for embedding evidence collecting and validated integrity of your supply chain. \
+
+`gensbom verify` is used to verify evidence (attestations) and policies. \
+
+Further documentation [Github integration](https://scribe-security.netlify.app/docs/ci-integrations/github/)
+
 
 ## Other actions
 * [bom - action](https://github.com/scribe-security/action-bom/README.md)
