@@ -1,15 +1,15 @@
 ---
 title: Verify
 ---
-# Scribe action for `gensbom bom`
-Scribe offers GitHub actions for embedding evidence collecting and validated integrity of your supply chain. \
+# Scribe Github Action for `gensbom bom`
+Scribe offers GitHub Actions for embedding evidence collecting and validated integrity of your supply chain.
 
-`gensbom verify` is used to verify evidence (attestations) and policies. \
+Use `gensbom verify` to verify evidence (attestations) and policies.
 
 Further documentation [Github integration](https://scribe-security.netlify.app/docs/ci-integrations/github/)
 
 
-## Other actions
+## Other Actions
 * [bom - action](https://github.com/scribe-security/action-bom/README.md)
 * [verify - action](https://github.com/scribe-security/action-verify/README.md)
 * [integrity report - action](https://github.com/scribe-security/action-report/README.md)
@@ -313,7 +313,7 @@ Full job example of a directory signing and verifying flow.
 Install gensbom as a tool
 ```YAML
 - name: install gensbom
-  uses: scribe-security/actions/gensbom/installer@master
+  uses: scribe-security/action-installer@master
 
 - name: gensbom run
   run: |
