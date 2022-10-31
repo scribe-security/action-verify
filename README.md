@@ -15,7 +15,7 @@ Further documentation [Github integration](https://scribe-security.netlify.app/d
 * [integrity report - action](https://github.com/scribe-security/action-report/README.md)
 * [installer - action](https://github.com/scribe-security/action-installer/README.md)
 
-## Verify action
+## Verify Action
 Action for `gensbom verify`.
 The command allows users to verify an image via a signed attestation (In-toto).
 - Verify targets using signed sbom, SLSA provanence attestations.
