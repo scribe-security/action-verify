@@ -1,4 +1,4 @@
-name: 'Gensbom: verify'
+name: 'valint: verify'
 description: 'Verify a Signed Software Bill Of Materials (SBOM) from container images and filesystems'
 author: Mikey Strauss
 inputs:
@@ -18,7 +18,7 @@ inputs:
     default: attest-cyclonedx-json
   output-directory:
     description: 'report output directory'
-    default: ./scribe/gensbom
+    default: ./scribe/valint
   output-file:
     description: 'Output result to file'
   filter-regex:
@@ -27,7 +27,7 @@ inputs:
   attest-config:
     description: 'Attestation config map'
   attest-name:
-    description: 'Attestation config name (default "gensbom")'
+    description: 'Attestation config name (default "valint")'
   attest-default:
     description: 'Attestation default config, options=[sigstore sigstore-github x509]'
     default: sigstore-github
@@ -36,7 +36,7 @@ inputs:
 
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/gensbom:dev-latest 
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:dev-latest 
   args:
     - verify
     - ${{ inputs.type }}:${{ inputs.target }}
