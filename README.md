@@ -187,7 +187,7 @@ Full job example of a image signing and verifying flow.
       id-token: write
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -207,7 +207,7 @@ Full job example of a image signing and verifying flow.
            target: 'busybox:latest'
            verbose: 2
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: gensbom-busybox-test
           path: gensbom_reports
@@ -229,7 +229,7 @@ Full job example of a image signing and verifying flow.
       id-token: write
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -250,7 +250,7 @@ Full job example of a image signing and verifying flow.
            input-format: attest-slsa
            verbose: 2
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: gensbom-busybox-test
           path: gensbom_reports
@@ -272,7 +272,7 @@ Full job example of a directory signing and verifying flow.
       id-token: write
     steps:
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -294,7 +294,7 @@ Full job example of a directory signing and verifying flow.
            target: '/GitHub/workspace/'
            verbose: 2
       
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: gensbom-workdir-reports
           path: |
