@@ -1,7 +1,7 @@
 ---
 title: Bom Verify
 ---
-# Scribe GitHub actions - `gensbom verify`
+# Scribe GitHub actions - `valint verify`
 Scribe offers GitHub actions for embedding evidence collecting and integrity verification to your workflows. \
 Action 
 
@@ -12,7 +12,7 @@ Action
 * [installer - action](https://github.com/scribe-security/action-installer/README.md)
 
 ## Verify action
-Action for `gensbom verify`.
+Action for `valint verify`.
 The command allows users to verify an image via a signed attestation (In-toto).
 - Verify targets using signed sbom, SLSA provanence attestations.
 - Signed SBOM supports, the action will verify Sigstore keyless flow (Fulcio CA + Rekor log) while using GitHub (See example below).
@@ -39,7 +39,7 @@ The command allows users to verify an image via a signed attestation (In-toto).
     default: attest-cyclonedx-json
   output-directory:
     description: 'report output directory'
-    default: ./scribe/gensbom
+    default: ./scribe/valint
   output-file:
     description: 'Output result to file'
   filter-regex:
@@ -48,7 +48,7 @@ The command allows users to verify an image via a signed attestation (In-toto).
   attest-config:
     description: 'Attestation config map'
   attest-name:
-    description: 'Attestation config name (default "gensbom")'
+    description: 'Attestation config name (default "valint")'
   attest-default:
     description: 'Attestation default config, options=[sigstore sigstore-github x509]'
     default: sigstore-github
@@ -56,8 +56,8 @@ The command allows users to verify an image via a signed attestation (In-toto).
 
 ### Usage
 ```
-- name: Gensbom verify
-  id: gensbom_verify
+- name: valint verify
+  id: valint_verify
   uses: scribe-security/actions/installer@master
   with:
       target: 'busybox:latest'
@@ -65,7 +65,7 @@ The command allows users to verify an image via a signed attestation (In-toto).
 ```
 
 ## Configuration
-Use default configuration path `.gensbom.yaml`, or
+Use default configuration path `.valint.yaml`, or
 provide a custom path using `config` input argument.
 
 You may add a `.cocosign.yaml` file to your repository or pass it with `--`config` \
@@ -108,7 +108,7 @@ job_example:
   permissions:
     id-token: write
   steps:
-    - name: gensbom attest
+    - name: valint attest
     uses: scribe-security/action-bom@master
     with:
         target: 'busybox:latest'
@@ -130,7 +130,7 @@ job_example:
   permissions:
     id-token: write
   steps:
-    - name: gensbom attest
+    - name: valint attest
     uses: scribe-security/action-bom@master
     with:
         target: 'busybox:latest'
@@ -144,11 +144,11 @@ job_example:
 Verify targets against a signed attestation. \
 Note: `docker` in target `type` field (is not accessible because it requires docker daemon (containerized actions) \
 Default attestation config: `sigstore-config` - sigstore (Fulcio, Rekor).
-gensbom will look for both a bom or slsa attestation to verify against
+valint will look for both a bom or slsa attestation to verify against
 
 ```YAML
-- name: gensbom verify
-  uses: scribe-security/actions/gensbom/verify@master
+- name: valint verify
+  uses: scribe-security/actions/valint/verify@master
   with:
     target: 'busybox:latest'
 ``` 
@@ -161,11 +161,11 @@ gensbom will look for both a bom or slsa attestation to verify against
 Verify targets against a signed attestation. \
 Note: `docker` in target `type` field (is not accessible because it requires docker daemon (containerized actions) \
 Default attestation config: `sigstore-config` - sigstore (Fulcio, Rekor).
-gensbom will look for both a bom or slsa attestation to verify against
+valint will look for both a bom or slsa attestation to verify against
 
 ```YAML
-- name: gensbom verify
-  uses: scribe-security/actions/gensbom/verify@master
+- name: valint verify
+  uses: scribe-security/actions/valint/verify@master
   with:
     target: 'busybox:latest'
     input-format: attest-slsa
@@ -179,7 +179,7 @@ gensbom will look for both a bom or slsa attestation to verify against
 Full job example of a image signing and verifying flow.
 
 ```YAML
- gensbom-busybox-test:
+ valint-busybox-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -191,8 +191,8 @@ Full job example of a image signing and verifying flow.
         with:
           fetch-depth: 0
 
-      - name: gensbom attest
-        id: gensbom_attest
+      - name: valint attest
+        id: valint_attest
         uses: scribe-security/action-bom@master
         with:
            target: 'busybox:latest'
@@ -200,17 +200,17 @@ Full job example of a image signing and verifying flow.
            format: attest
            force: true
 
-      - name: gensbom verify
-        id: gensbom_verify
-        uses: scribe-security/actions/gensbom/verify@master
+      - name: valint verify
+        id: valint_verify
+        uses: scribe-security/actions/valint/verify@master
         with:
            target: 'busybox:latest'
            verbose: 2
 
       - uses: actions/upload-artifact@v3
         with:
-          name: gensbom-busybox-test
-          path: gensbom_reports
+          name: valint-busybox-test
+          path: valint_reports
 ``` 
 
 </details>
@@ -221,7 +221,7 @@ Full job example of a image signing and verifying flow.
 Full job example of a image signing and verifying flow.
 
 ```YAML
- gensbom-busybox-test:
+ valint-busybox-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -233,8 +233,8 @@ Full job example of a image signing and verifying flow.
         with:
           fetch-depth: 0
 
-      - name: gensbom attest slsa
-        id: gensbom_attest
+      - name: valint attest slsa
+        id: valint_attest
         uses: scribe-security/action-bom@master
         with:
            target: 'busybox:latest'
@@ -242,9 +242,9 @@ Full job example of a image signing and verifying flow.
            format: attest-slsa
            force: true
 
-      - name: gensbom verify attest slsa
-        id: gensbom_verify
-        uses: scribe-security/actions/gensbom/verify@master
+      - name: valint verify attest slsa
+        id: valint_verify
+        uses: scribe-security/actions/valint/verify@master
         with:
            target: 'busybox:latest'
            input-format: attest-slsa
@@ -252,8 +252,8 @@ Full job example of a image signing and verifying flow.
 
       - uses: actions/upload-artifact@v3
         with:
-          name: gensbom-busybox-test
-          path: gensbom_reports
+          name: valint-busybox-test
+          path: valint_reports
 ``` 
 
 </details>
@@ -264,7 +264,7 @@ Full job example of a image signing and verifying flow.
 Full job example of a directory signing and verifying flow.
 
 ```YAML
-  gensbom-dir-test:
+  valint-dir-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -276,8 +276,8 @@ Full job example of a directory signing and verifying flow.
         with:
           fetch-depth: 0
 
-      - name: gensbom attest workdir
-        id: gensbom_attest_dir
+      - name: valint attest workdir
+        id: valint_attest_dir
         uses: scribe-security/action-bom@master
         with:
            type: dir
@@ -286,9 +286,9 @@ Full job example of a directory signing and verifying flow.
            format: attest
            force: true
 
-      - name: gensbom verify workdir
-        id: gensbom_verify_dir
-        uses: scribe-security/actions/gensbom/verify@master
+      - name: valint verify workdir
+        id: valint_verify_dir
+        uses: scribe-security/actions/valint/verify@master
         with:
            type: dir
            target: '/GitHub/workspace/'
@@ -296,24 +296,24 @@ Full job example of a directory signing and verifying flow.
       
       - uses: actions/upload-artifact@v3
         with:
-          name: gensbom-workdir-reports
+          name: valint-workdir-reports
           path: |
-            gensbom_reports      
+            valint_reports      
 ``` 
 
 </details>
 
 <details>
-  <summary> Install gensbom (tool) </summary>
+  <summary> Install valint (tool) </summary>
 
-Install gensbom as a tool
+Install valint as a tool
 ```YAML
-- name: install gensbom
-  uses: scribe-security/actions/gensbom/installer@master
+- name: install valint
+  uses: scribe-security/actions/valint/installer@master
 
-- name: gensbom run
+- name: valint run
   run: |
-    gensbom --version
-    gensbom bom busybox:latest -vv
+    valint --version
+    valint bom busybox:latest -vv
 ``` 
 </details>

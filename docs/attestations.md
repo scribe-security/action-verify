@@ -1,7 +1,7 @@
 ## Attestations
-gensbom utilized our `cocosign` framework to allow users to sign sbombs in to a In-toto attestations.
+valint utilized our `cocosign` framework to allow users to sign sbombs in to a In-toto attestations.
 Framework allows users to select between signing and verifying schemes. 
-gensbom creates a cyclonedx json attestation according to the In-toto spec.
+valint creates a cyclonedx json attestation according to the In-toto spec.
 Please see full documentation of `cocosign` 
 
 Source see [cocosign](https://github.com/scribe-security/cocosign), attestation manager
@@ -97,8 +97,8 @@ You may can use the default Sigstore `cocosign` configuration flag.
 Sigstore will also provide a transperancy log for any one to verify your signatures against (`rekor`)
 
 ```bash
-gensbom bom busybox:latest -o attest --attest.default sigstore -v
-gensbom verify busybox:latest --attest.default sigstore -v
+valint bom busybox:latest -o attest --attest.default sigstore -v
+valint verify busybox:latest --attest.default sigstore -v
 ``` 
 Default config
 ```
@@ -130,8 +130,8 @@ X509 flows allow you to use local keys, cert and CA file to sign and verify you 
 You may can use the default x509 `cocosign` configuration flag.
 
 ```bash
-gensbom bom busybox:latest -o attest --attest.default x509 -v
-gensbom verify busybox:latest --attest.default fulcio -v
+valint bom busybox:latest -o attest --attest.default x509 -v
+valint verify busybox:latest --attest.default fulcio -v
 ```
 Default config
 ```
@@ -161,8 +161,8 @@ You may use any configuration supported by `cocosign` as well.
 Create a configuration file (default .cocosign)
 
 ```bash
-gensbom bom busybox:latest -o attest --attest.config <config_path> -v
-gensbom verify busybox:latest --attest.config <config_path> -v
+valint bom busybox:latest -o attest --attest.config <config_path> -v
+valint verify busybox:latest --attest.config <config_path> -v
 ``` 
 </details>
 
@@ -170,12 +170,12 @@ gensbom verify busybox:latest --attest.config <config_path> -v
   <summary> Cosign integration </summary>
 
 ## Cosign integration
-Gensbom allows you to use cosign cli tool `attest`,`verify-attestation` subcommands.
+valint allows you to use cosign cli tool `attest`,`verify-attestation` subcommands.
 You may use cosign to connect the attestation to your OCI registry (sign and verify).
 Example uses keyless (sigstore) but you may use any cosign signer/verifer supported.
 ```
-gensbom bom <image> -vv -o predicate -f --output-file gensbom_predicate.json
-COSIGN_EXPERIMENTAL=1 cosign attest --predicate gensbom_predicate.json <image> --type https://scribesecurity.com/predicate/cyclondex
+valint bom <image> -vv -o predicate -f --output-file valint_predicate.json
+COSIGN_EXPERIMENTAL=1 cosign attest --predicate valint_predicate.json <image> --type https://scribesecurity.com/predicate/cyclondex
 COSIGN_EXPERIMENTAL=1 cosign verify-attestation <image>
 ```
 </details>
