@@ -11,21 +11,20 @@ Further documentation [Github integration](https://scribe-security.netlify.app/d
 
 
 ## Other Actions
-* [bom - action](https://github.com/scribe-security/action-bom/README.md)
-* [verify - action](https://github.com/scribe-security/action-verify/README.md)
-* [installer - action](https://github.com/scribe-security/action-installer/README.md)
+* [bom](https://github.com/scribe-security/action-bom/README.md)
+* [verify](https://github.com/scribe-security/action-verify/README.md)
+* [installer](https://github.com/scribe-security/action-installer/README.md)
 <!-- * [integrity report - action](https://github.com/scribe-security/action-report/README.md) -->
 
 
 ## Verify Action
 Action for `gensbom verify`.
-The command allows users to verify an image via a signed attestation (In-toto).
-- Verify targets using signed sbom, SLSA provanence attestations.
-- Signed SBOM supports, the action will verify Sigstore keyless flow (Fulcio CA + Rekor log) while using GitHub (See example below).
-- Verify signer identity, for example, GitHub workflow ids.
-- Download attestations (signed SBOMs) from Scribe service.
-- Verify attestations via OPA/CUE policies (see cocosign documentation).
-- Verify the trust of target images, directories, files or git repositories.
+The command allows users to verify any target against its evidence.
+- Verify image, directory, file or git targets.
+- Verify evidence policy compliance across the supply chain.
+- Pull evidence from scribe service.
+- Download and search evidence in all enabled stores.
+- Support Sigstore keyless verifying as well as [Github workload identity](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect).
 
 ### Input arguments
 ```yaml
@@ -143,7 +142,7 @@ job_example:
   <summary> Verify target (SBOM) </summary>
 
 Verify targets against a signed attestation.
-Default attestation config: `sigstore-config` - sigstore (Fulcio, Rekor). <br />
+Default attestation config: `sigstore-github` - sigstore (Fulcio, Rekor). <br />
 Gensbom will look for both a bom or slsa attestation to verify against. <br />
 
 ```YAML
@@ -159,7 +158,7 @@ Gensbom will look for both a bom or slsa attestation to verify against. <br />
   <summary> Verify target (SLSA) </summary>
 
 Verify targets against a signed attestation. <br />
-Default attestation config: `sigstore-config` - sigstore (Fulcio, Rekor). <br />
+Default attestation config: `sigstore-github` - sigstore (Fulcio, Rekor). <br />
 Gensbom will look for both a bom or slsa attestation to verify against. <br />
 
 
