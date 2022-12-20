@@ -1,5 +1,5 @@
-name: 'verify'
-description: 'Verify a Signed Software Bill Of Materials (SBOM) from container images and filesystems'
+name: 'Scribe evidence verify'
+description: 'Verify a Signed Software Bill Of Materials (SBOM) for container images, filesystems and git repositories'
 author: Mikey Strauss
 inputs:
   type:
