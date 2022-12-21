@@ -40,10 +40,10 @@ The command allows users to verify any target against its evidence.
   config:
     description: 'Application config file'
   input-format:
-    description: 'Sbom input formatter, options=[attest-cyclonedx-json attest-slsa]  (default "attest-cyclonedx-json")'
+    description: 'Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json]'
     default: attest-cyclonedx-json
   output-directory:
-    description: 'report output directory'
+    description: 'Output directory path'
     default: ./scribe/gensbom
   output-file:
     description: 'Output result to file'
