@@ -33,6 +33,11 @@ inputs:
     default: sigstore-github
   attestation:
     description: 'Attestation for target'
+  oci: 
+    description: 'Enable OCI store'
+    default: false
+  oci-repo:
+    description: 'Select OCI custom attestation repo'
 
 runs:
   using: docker
@@ -52,7 +57,8 @@ runs:
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
     - ${{ inputs.output-file && '--output-file=' }}${{ inputs.output-file }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
-
+    - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
+    - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
 
 branding:
   icon: shield

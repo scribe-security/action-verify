@@ -1,107 +1,34 @@
-## Attestations
-valint utilized our `cocosign` framework to allow users to sign sbombs in to a In-toto attestations.
-Framework allows users to select between signing and verifying schemes. 
-valint creates a cyclonedx json attestation according to the In-toto spec.
-Please see full documentation of `cocosign` 
+---
+title: Attestations
+---
 
-Source see [cocosign](https://github.com/scribe-security/cocosign), attestation manager
-Source see [sigstore](https://github.com/sigstore)
+# Attestations
+Attestations represents authenticated metadata about a set of software artifacts (evidence). <br /> 
+scribe utilizes both attestations (signed) and statement (unsigned) to validate the integrity and policy compliance of your supply chain.
 
-## Signer types
-Signers/Verifiers are selected via configuration (supported) or provided by application (custom), objects allow application to chose between signed and verifying flows .
+## Evidence 
+`cocosign` supports both signed and unsigned evidence.
+* InToto statement - unsigned evidence
+* InToto attestation - signed evidence
 
-**Supported signers/verifiers**
+See details [In-toto spec](https://github.com/in-toto/attestation)
 
-- KMS - Cosign based KMS signer allows users to sign via kms.
-[doc](https://github.com/sigstore/cosign/blob/main/KMS.md) for Ref details.
-    - Support `KMSREF` environment variable (when configuration field is empty).
-    - Support static ref set by configuration or env.
-    - Support in-band ref verification flow by using the `REF` signature option.
-- Fulcio - Cosign based fulcio signer allows users to sign attestation via fulcio (sigstore) project.
-Simply put you can utilize a OIDC connection to gain a short living certificate signed to your identity.
-[keyless](https://github.com/sigstore/cosign/blob/main/KEYLESS.md), [fulcio_doc](https://github.com/sigstore/fulcio) for more details.
-    - Interactive - Ask user to authorize the signature via browser or security code url.
-    - Token - Static OIDC identity token provided (extracted via external tool)
-    - Providers
-        - google-workload-identity
-        - google-impersonate
-        - github-workload-identity
-        - spiffe
-        - google-impersonate-cred (`GOOGLE_APPLICATION_CREDENTIALS`)
-- x509/KML - Key management library, go library abstracting the key type from applications. (Supports TPM). [doc](https://github.com/scribe-security/KML) for details.
-Note: KML has other values such as managing a basic x509 CA.
-**KML support table:**
-    
-    ```jsx
-    - Key formats - PEM formatted keys.
-    - File CA API - rsa-2048,4096 (pss), ecdsa (p256).
-    - TPM CA API - rsa-2048 (pss).
-    - File installer API - rsa-2048,4096 (pss), ecdsa (p256), ed25519.
-    - TPM installer API - rsa-2048 (pss).
-    - File key API - rsa-2048,4096 (pss), ecdsa (p256), ed25519.
-    - TPM key API rsa-2048,(pss).
-    - File TLS API - rsa-2048,4096,(pss), , ecdsa (p256).
-    - TPM TLS API - rsa-2048,(pss).
-    ```
 
-## Custom cocosign configuration
-```jsx
-signer:
-	x509:
-	    enable: <true|false>
-	    private: <key_path>
-	    cert: <cert_path>
-	    ca: <ca_path>
-	fulcio:
-	    enable: <true|false>
-	    url: <sigstore_url>
-	    oidc:
-	        issuer: <sigstore_issuer_url>
-	        client-id: <sigstore_client_id>
-	        client-secret: <sigstore_client_secret>
-	        token:<external_token> - for auth=token, enter the OIDC identity token
-	kms:
-	    enable: <true|false>
-	    ref: <kms_ref> # Or KMSREF envrionment
-verifier:
-	x509:
-	    enable: <true|false>
-	    cert: <cert_path>
-	    ca: <ca_path>
-	fulcio:
-	    enable: <true|false>
-	kms:
-	    enable: <true|false>
-	    ref: <kms_ref> # Or KMSREF envrionment
-	policies:
-		<list of rego/cue policies>
-	certemail: 
-		<email to verify certificate>
-	certuris: 
-		<uris to verify certificate>
-  untrustedpublic: <true|false> // Allow verifiers with only publics
-storer:
-	rekor:
-	    enable: <true|false>
-	    url: <rekor_url>
-	    disablebundle: <true|false>
-```
+## Default configuration
+You can select from a set of prefilled default configuration.
 
-## Usage
+> Use flag `--attest.default`, supported values are `sigstore,sigstore-github,x509`.
+
 <details>
   <summary> Sigstore public instance </summary>
 
-### Sigstore
 Sigstore signer and verifier allow you to use ephemeral short living keys based on OIDC identity (google, microsoft, github).
-You may can use the default Sigstore `cocosign` configuration flag.
 Sigstore will also provide a transperancy log for any one to verify your signatures against (`rekor`)
 
-```bash
-valint bom busybox:latest -o attest --attest.default sigstore -v
-valint verify busybox:latest --attest.default sigstore -v
-``` 
+> Use flag `--attest.default=sigstore`.
+
 Default config
-```
+```yaml
 signer:
     fulcio:
         enable: true
@@ -123,18 +50,46 @@ storer:
 </details>
 
 <details>
+  <summary> Sigstore public instance - Github workfload identity </summary>
+
+Sigstore signer and verifier allow you to use ephemeral short living keys based on OIDC identity (google, microsoft, github).
+Sigstore will also provide a transperancy log for any one to verify your signatures against (`rekor`)
+
+> Select by using `--attest.default=sigstore-github`
+
+Default config
+
+```yaml
+signer:
+  fulcio:
+    enable: true
+    url: https://fulcio.sigstore.dev
+    oidc:
+      auth: provider
+      issuer: https://token.actions.githubusercontent.com
+      clientid: sigstore
+verifier:
+  fulcio:
+    enable: true
+```
+</details>
+
+
+<details>
   <summary> X509 local keys </summary>
 
-### X509 local keys
 X509 flows allow you to use local keys, cert and CA file to sign and verify you sboms.
 You may can use the default x509 `cocosign` configuration flag.
+
+> Use flag `--attest.default=x509`.
 
 ```bash
 valint bom busybox:latest -o attest --attest.default x509 -v
 valint verify busybox:latest --attest.default fulcio -v
 ```
+
 Default config
-```
+```yaml
 signer:
     x509:
         enable: true
@@ -149,33 +104,128 @@ verifier:
 ```
 </details>
 
-<details>
-  <summary> Scribe service - TBD </summary>
-</details>
 
-<details>
-  <summary> Custom configuration </summary>
+## Custom configuration
+Edit your main configuration, add the following subsection. \
+For full configuration details see [configuration-format](#configuration-format).
 
-### Custom
-You may use any configuration supported by `cocosign` as well.
-Create a configuration file (default .cocosign)
+Usage:
+```yaml
+attest:
+    default: ""
+    cocosign: #Custom cocosign configuration
+        signer:
+            x509:
+                enable: true
+                private: ./private/key.pem
+        verifier:
+            x509:
+                enable: true
+                cert: ./public/cert.pem
+                ca: ./public/ca.pem
+```
+> Use flag `--attest.config` to provide a external cocosign config.
 
-```bash
-valint bom busybox:latest -o attest --attest.config <config_path> -v
-valint verify busybox:latest --attest.config <config_path> -v
+
+## Signers and verifiers support
+
+### **KMS**
+Sigstore based KMS signer allows users to sign via kms.
+[doc](https://github.com/sigstore/cosign/blob/main/KMS.md) for Ref details.
+    - Support `KMSREF` environment variable (when configuration field is empty).
+    - Support static ref set by configuration or env.
+    - Support in-band ref verification flow by using the `REF` signature option.
+
+### **Fulcio**
+Sigstore based fulcio signer allows users to sign InToto statement using fulcio (Sigstore) project.
+
+Simply put you can utilize a OIDC connection to gain a short living certificate signed to your identity.
+
+[keyless](https://github.com/sigstore/cosign/blob/main/KEYLESS.md)
+[fulcio_doc](https://github.com/sigstore/fulcio)
+
+#### Support
+- Interactive - User must authorize the signature via browser, device or security code url.
+- Token - Static OIDC identity token provided provided by an external tool.
+- Built-in identity providers flows
+    - google-workload-identity
+    - google-impersonate
+    - github-workload-identity
+    - spiffe
+    - google-impersonate-cred (`GOOGLE_APPLICATION_CREDENTIALS`)
+
+### **x509** 
+File based key management library, go library abstracting the key type from applications (Supports TPM).
+
+> See [KML](https://github.com/scribe-security/KML) for details.
+
+| Media type | TPM | RSA (pss)| ECDSA (p256) | ED25519 |
+| --- | --- | --- | --- | --- |
+| file | | 2048, 4096 | yes | yes |
+| TPM | yes | 2048 | | |
+
+ > PEM formatted files 
+
+### OCI storer
+Storer uploads evidence to your OCI registry.
+Evidence can be attached to a specific image or uploaded to a general repo location.
+
+OCI store capability allows your evidence collection to span across your supply chain.
+
+> Use flag `--oci` and `--oci-repo` to enable.
+
+Default config, 
 ``` 
-</details>
-
-<details>
-  <summary> Cosign integration </summary>
-
-## Cosign integration
-valint allows you to use cosign cli tool `attest`,`verify-attestation` subcommands.
-You may use cosign to connect the attestation to your OCI registry (sign and verify).
-Example uses keyless (sigstore) but you may use any cosign signer/verifer supported.
+storer:
+    oci:
+        enable: false
+        ref: ""
 ```
-valint bom <image> -vv -o predicate -f --output-file valint_predicate.json
-COSIGN_EXPERIMENTAL=1 cosign attest --predicate valint_predicate.json <image> --type https://scribesecurity.com/predicate/cyclondex
-COSIGN_EXPERIMENTAL=1 cosign verify-attestation <image>
+
+> Supports cosign verification
+
+## Configuration format
+```yaml
+signer:
+	x509:
+	    enable: <true|false>
+	    private: <key_path>
+	    cert: <cert_path>
+	    ca: <ca_path>
+	fulcio:
+	    enable: <true|false>
+	    url: <sigstore_url>
+	    oidc:
+	        issuer: <sigstore_issuer_url>
+	        client-id: <sigstore_client_id>
+	        client-secret: <sigstore_client_secret>
+	        token:<external_token> - for auth=token, enter the OIDC identity token
+	kms:
+	    enable: <true|false>
+	    ref: <kms_ref>
+verifier:
+	x509:
+	    enable: <true|false>
+	    cert: <cert_path>
+	    ca: <ca_path>
+	fulcio:
+	    enable: <true|false>
+	kms:
+	    enable: <true|false>
+	    ref: <kms_ref>
+	policies:
+		<list of rego/cue policies>
+	certemail: 
+		<email to verify certificate>
+	certuris: 
+		<uris to verify certificate>
+  untrustedpublic: <true|false> // Allow verifiers with only publics
+storer:
+	rekor:
+	    enable: <true|false>
+	    url: <rekor_url>
+	    disablebundle: <true|false>
+    oci:
+        enable: <true|false>
+        ref: <oci ref to upload evidence to>
 ```
-</details>

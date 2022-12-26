@@ -1,44 +1,49 @@
 ---
-title: Bom Verify
+title: Verify
+sidebar_position: 2
 ---
-# Scribe GitHub actions - `valint verify`
-Scribe offers GitHub actions for embedding evidence collecting and integrity verification to your workflows. \
-Action 
+# Scribe Github Action for `valint bom`
+Scribe offers GitHub Actions for embedding evidence collecting and validated integrity of your supply chain.
 
-## Other actions
-* [bom - action](https://github.com/scribe-security/action-bom/README.md)
-* [verify - action](https://github.com/scribe-security/action-verify/README.md)
-* [integrity report - action](https://github.com/scribe-security/action-report/README.md)
-* [installer - action](https://github.com/scribe-security/action-installer/README.md)
+Use `valint verify` to verify evidence (attestations) and policies.
 
-## Verify action
+Further documentation [Github integration](https://scribe-security.netlify.app/docs/ci-integrations/github/)
+
+
+## Other Actions
+* [bom](action-bom.md), [source](https://github.com/scribe-security/action-bom)
+* [verify](action-verify.md), [source](https://github.com/scribe-security/action-verify)
+* [installer](action-installer.md), [source](https://github.com/scribe-security/action-installer)
+<!-- * [integrity report - action](https://github.com/scribe-security/action-report/README.md) -->
+
+
+## Verify Action
 Action for `valint verify`.
-The command allows users to verify an image via a signed attestation (In-toto).
-- Verify targets using signed sbom, SLSA provanence attestations.
-- Signed SBOM supports, the action will verify Sigstore keyless flow (Fulcio CA + Rekor log) while using GitHub (See example below).
-- Verify signer identity, for example, GitHub workflow ids.
-- Download attestations (signed SBOMs) from Scribe service.
-- Verify attestations via OPA/CUE policies (see cocosign documentation).
-- Verify the trust of target images, directories, files or git repositories.
+The command allows users to verify any target against its evidence.
+- Verify image, directory, file or git targets.
+- Verify evidence policy compliance across the supply chain.
+- Pull evidence from scribe service.
+- Download and search evidence in all enabled stores.
+- Support Sigstore keyless verifying as well as [Github workload identity](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect).
 
 ### Input arguments
 ```yaml
-  type:
-    description: 'Target source type options=[docker,docker-archive, oci-archive, dir, registry]'
+ type:
+    description: 'Target source type options=[docker,docker-archive, oci-archive, dir, registry, git]'
     default: registry
   target:
-    description: 'Target object name format=[<image:tag>, <dir_path>]'
+    description: 'Target object name format=[<image:tag>, <dir path>, <git url>]'
     required: true
   verbose:
-    description: 'Increase verbosity (-v = info, -vv = debug)'
+    description: 'Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug'
     default: 1
   config:
     description: 'Application config file'
   input-format:
-    description: 'Sbom input formatter, options=[attest-cyclonedx-json attest-slsa] (default "attest-cyclonedx-json")'
+    description: 'Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json]'
     default: attest-cyclonedx-json
   output-directory:
-    description: 'report output directory'
+    description: 'Output directory path'
     default: ./scribe/valint
   output-file:
     description: 'Output result to file'
@@ -47,60 +52,53 @@ The command allows users to verify an image via a signed attestation (In-toto).
     default: .*\.pyc,\.git/.*
   attest-config:
     description: 'Attestation config map'
-  attest-name:
-    description: 'Attestation config name (default "valint")'
   attest-default:
     description: 'Attestation default config, options=[sigstore sigstore-github x509]'
     default: sigstore-github
+  attestation:
+    description: 'Attestation for target'
 ```
 
 ### Usage
 ```
 - name: valint verify
   id: valint_verify
-  uses: scribe-security/actions/installer@master
+  uses: scribe-security/action-installer@master
   with:
       target: 'busybox:latest'
       verbose: 2
 ```
 
 ## Configuration
-Use default configuration path `.valint.yaml`, or
-provide a custom path using `config` input argument.
+Use default configuration path `.valint.yaml`, or provide a custom path using `--config` flag.
 
-You may add a `.cocosign.yaml` file to your repository or pass it with `--`config` \
-<!-- for more [Cocosign configuration](https://github.com/scribe-security/cocosign) -->
+See detailed [configuration](docs/configuration.md)
 
 
 ## Attestations 
-Attestations SBOMs allows you to sign and verify your SBOM targets. \
-Attestations allow you to connect PKI-based identities to your evidence and policy management. 
+Attestations allow you to sign and verify your targets. <br />
+Attestations allow you to connect PKI-based identities to your evidence and policy management.  <br />
+
 Supported outputs:
-- In-toto statements - cyclonedx BOM, SLSA Provenance
-- In-toto predicate - cyclonedx, BOM, SLSA Provenance
-- In-toto attestations -cyclonedx, BOM, SLSA Provenance
+- In-toto predicate - Cyclonedx SBOM, SLSA Provenance (unsigned evidence)
+- In-toto statements - Cyclonedx SBOM, SLSA Provenance (unsigned evidence)
+- In-toto attestations -Cyclonedx SBOM, SLSA Provenance (signed evidence)
 
+Select default configuration using `--attest.default` flag. <br />
+Select a custom configuration by providing `cocosign` field in the [configuration](docs/configuration.md) or custom path using `--attest.config`.
 
-Use default configuration path `.cocosign.yaml`, or
-provide custom path using `attest-config` input argument.
-
-See details [documentation - attestation](docs/attestations.md) \
-<!-- Source see [cocosign](https://github.com/scribe-security/cocosign), attestation manager -->
-
-## .gitignore
-Recommended to add output directory value to your .gitignore file.
-By default add `**/scribe` to your `.gitignore`.
+See details [In-toto spec](https://github.com/in-toto/attestation)
+See details [attestations](docs/attestations.md)
 
 ## Verify SBOMs examples
 
 <details>
-  <summary> Attest target (BOM) </summary>
+  <summary> Attest target (SBOM) </summary>
 
-Create and sign SBOM targets, skip if found signed SBOM by the cache. \
-Targets: `registry`, `docker-archive`, `oci-archive`, `dir`.
-Note: Default attestation config **Required** `id-token` permission access. \
-Default attestation config: `sigstore-config` - GitHub workload identity and Sigstore (Fulcio, Rekor).
+Create and sign SBOM targets. <br />
+By default the `sigstore-github` flow is used, GitHub workload identity and Sigstore (Fulcio, Rekor).
 
+>Default attestation config **Required** `id-token` permission access. <br />
 
 ```YAML
 job_example:
@@ -119,10 +117,10 @@ job_example:
 <details>
   <summary> Attest target (SLSA) </summary>
 
-Create and sign SBOM targets, skip if found signed SBOM by the cache. \
-Targets: `registry`, `docker-archive`, `oci-archive`, `dir`.
-Note: Default attestation config **Required** `id-token` permission access. \
-Default attestation config: `sigstore-config` - GitHub workload identity and Sigstore (Fulcio, Rekor).
+Create and sign SLSA targets. <br />
+By default the `sigstore-github` flow is used, GitHub workload identity and Sigstore (Fulcio, Rekor).
+
+>Default attestation config **Required** `id-token` permission access. <br />
 
 ```YAML
 job_example:
@@ -139,16 +137,15 @@ job_example:
 </details>
 
 <details>
-  <summary> Verify target (BOM) </summary>
+  <summary> Verify target (SBOM) </summary>
 
-Verify targets against a signed attestation. \
-Note: `docker` in target `type` field (is not accessible because it requires docker daemon (containerized actions) \
-Default attestation config: `sigstore-config` - sigstore (Fulcio, Rekor).
-valint will look for both a bom or slsa attestation to verify against
+Verify targets against a signed attestation.
+Default attestation config: `sigstore-github` - sigstore (Fulcio, Rekor). <br />
+valint will look for both a bom or slsa attestation to verify against. <br />
 
 ```YAML
 - name: valint verify
-  uses: scribe-security/actions/valint/verify@master
+  uses: scribe-security/action-verify@master
   with:
     target: 'busybox:latest'
 ``` 
@@ -158,14 +155,14 @@ valint will look for both a bom or slsa attestation to verify against
 <details>
   <summary> Verify target (SLSA) </summary>
 
-Verify targets against a signed attestation. \
-Note: `docker` in target `type` field (is not accessible because it requires docker daemon (containerized actions) \
-Default attestation config: `sigstore-config` - sigstore (Fulcio, Rekor).
-valint will look for both a bom or slsa attestation to verify against
+Verify targets against a signed attestation. <br />
+Default attestation config: `sigstore-github` - sigstore (Fulcio, Rekor). <br />
+valint will look for both a bom or slsa attestation to verify against. <br />
+
 
 ```YAML
 - name: valint verify
-  uses: scribe-security/actions/valint/verify@master
+  uses: scribe-security/action-verify@master
   with:
     target: 'busybox:latest'
     input-format: attest-slsa
@@ -174,7 +171,7 @@ valint will look for both a bom or slsa attestation to verify against
 </details>
 
 <details>
-  <summary> Attest and verify image (BOM) </summary>
+  <summary> Attest and verify image target (SBOM) </summary>
 
 Full job example of a image signing and verifying flow.
 
@@ -187,7 +184,7 @@ Full job example of a image signing and verifying flow.
       id-token: write
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
@@ -202,21 +199,21 @@ Full job example of a image signing and verifying flow.
 
       - name: valint verify
         id: valint_verify
-        uses: scribe-security/actions/valint/verify@master
+        uses: scribe-security/action-verify@master
         with:
            target: 'busybox:latest'
            verbose: 2
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v2
         with:
           name: valint-busybox-test
-          path: valint_reports
+          path: scribe/valint
 ``` 
 
 </details>
 
 <details>
-  <summary> Attest and verify image (SLSA) </summary>
+  <summary> Attest and verify image target (SLSA) </summary>
 
 Full job example of a image signing and verifying flow.
 
@@ -229,7 +226,7 @@ Full job example of a image signing and verifying flow.
       id-token: write
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
@@ -244,22 +241,22 @@ Full job example of a image signing and verifying flow.
 
       - name: valint verify attest slsa
         id: valint_verify
-        uses: scribe-security/actions/valint/verify@master
+        uses: scribe-security/action-verify@master
         with:
            target: 'busybox:latest'
            input-format: attest-slsa
            verbose: 2
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v2
         with:
           name: valint-busybox-test
-          path: valint_reports
+          path: scribe/valint
 ``` 
 
 </details>
 
 <details>
-  <summary> Attest and verify directory </summary>
+  <summary> Attest and verify directory target (SBOM) </summary>
 
 Full job example of a directory signing and verifying flow.
 
@@ -272,7 +269,7 @@ Full job example of a directory signing and verifying flow.
       id-token: write
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
@@ -288,17 +285,64 @@ Full job example of a directory signing and verifying flow.
 
       - name: valint verify workdir
         id: valint_verify_dir
-        uses: scribe-security/actions/valint/verify@master
+        uses: scribe-security/action-verify@master
         with:
            type: dir
            target: '/GitHub/workspace/'
            verbose: 2
       
+      - uses: actions/upload-artifact@v2
+        with:
+          name: valint-workdir-evidence
+          path: |
+            scribe/valint      
+``` 
+
+</details>
+
+
+<details>
+  <summary> Attest and verify Git repository target (SBOM) </summary>
+
+Full job example of a git repository signing and verifying flow.
+> Support for both local (path) and remote git (url) repositories.
+
+```YAML
+  valint-dir-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: valint attest local repo
+        id: valint_attest_dir
+        uses: scribe-security/action-bom@master
+        with:
+           type: git
+           target: '/GitHub/workspace/my_repo'
+           verbose: 2
+           format: attest
+           force: true
+
+      - name: valint verify local repo
+        id: valint_verify_dir
+        uses: scribe-security/action-verify@master
+        with:
+           type: git
+           target: '/GitHub/workspace/my_repo'
+           verbose: 2
+      
       - uses: actions/upload-artifact@v3
         with:
-          name: valint-workdir-reports
+          name: valint-git-evidence
           path: |
-            valint_reports      
+            scribe/valint      
 ``` 
 
 </details>
@@ -309,7 +353,7 @@ Full job example of a directory signing and verifying flow.
 Install valint as a tool
 ```YAML
 - name: install valint
-  uses: scribe-security/actions/valint/installer@master
+  uses: scribe-security/action-installer@master
 
 - name: valint run
   run: |
@@ -317,3 +361,7 @@ Install valint as a tool
     valint bom busybox:latest -vv
 ``` 
 </details>
+
+## .gitignore
+Recommended to add output directory value to your .gitignore file.
+By default add `**/scribe` to your `.gitignore`.
