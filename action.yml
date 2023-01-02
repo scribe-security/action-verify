@@ -1,15 +1,15 @@
-name: 'valint: verify'
-description: 'Verify a Signed Software Bill Of Materials (SBOM) from container images and filesystems'
+name: 'Scribe evidence verify'
+description: 'Verify a Signed Software Bill Of Materials (SBOM) for container images, filesystems and git repositories'
 author: Mikey Strauss
 inputs:
   type:
-    description: 'Target source type options=[docker,docker-archive, oci-archive, dir, registry]'
+    description: 'Target source type options=[docker,docker-archive, oci-archive, dir, registry, git]'
     default: registry
   target:
-    description: 'Target object name format=[<image:tag>, <dir_path>]'
+    description: 'Target object name format=[<image:tag>, <dir path>, <git url>]'
     required: true
   verbose:
-    description: 'Increase verbosity (-v = info, -vv = debug)'
+    description: 'Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug'
     default: 1
   config:
     description: 'Application config file'

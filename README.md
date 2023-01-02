@@ -57,6 +57,11 @@ The command allows users to verify any target against its evidence.
     default: sigstore-github
   attestation:
     description: 'Attestation for target'
+  oci:
+    description: 'Enable OCI store'
+  oci-repo:
+    description: 'Select OCI custom attestation repo'
+
 ```
 
 ### Usage
