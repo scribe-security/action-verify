@@ -2,23 +2,23 @@
 title: Verify
 sidebar_position: 2
 ---
-# Scribe Github Action for `gensbom bom`
+# Scribe Github Action for `valint bom`
 Scribe offers GitHub Actions for embedding evidence collecting and validated integrity of your supply chain.
 
-Use `gensbom verify` to verify evidence (attestations) and policies.
+Use `valint verify` to verify evidence (attestations) and policies.
 
 Further documentation [Github integration](https://scribe-security.netlify.app/docs/ci-integrations/github/)
 
 
 ## Other Actions
-* [bom](https://github.com/scribe-security/action-bom/README.md)
-* [verify](https://github.com/scribe-security/action-verify/README.md)
-* [installer](https://github.com/scribe-security/action-installer/README.md)
+* [bom](action-bom.md), [source](https://github.com/scribe-security/action-bom)
+* [verify](action-verify.md), [source](https://github.com/scribe-security/action-verify)
+* [installer](action-installer.md), [source](https://github.com/scribe-security/action-installer)
 <!-- * [integrity report - action](https://github.com/scribe-security/action-report/README.md) -->
 
 
 ## Verify Action
-Action for `gensbom verify`.
+Action for `valint verify`.
 The command allows users to verify any target against its evidence.
 - Verify image, directory, file or git targets.
 - Verify evidence policy compliance across the supply chain.
@@ -44,7 +44,7 @@ The command allows users to verify any target against its evidence.
     default: attest-cyclonedx-json
   output-directory:
     description: 'Output directory path'
-    default: ./scribe/gensbom
+    default: ./scribe/valint
   output-file:
     description: 'Output result to file'
   filter-regex:
@@ -52,19 +52,23 @@ The command allows users to verify any target against its evidence.
     default: .*\.pyc,\.git/.*
   attest-config:
     description: 'Attestation config map'
-  attest-name:
-    description: 'Attestation config name (default "gensbom")'
   attest-default:
     description: 'Attestation default config, options=[sigstore sigstore-github x509]'
     default: sigstore-github
   attestation:
     description: 'Attestation for target'
+  oci:
+    description: 'Enable OCI store'
+    default: false
+  oci-repo:
+    description: 'Select OCI custom attestation repo'
+
 ```
 
 ### Usage
 ```
-- name: Gensbom verify
-  id: gensbom_verify
+- name: valint verify
+  id: valint_verify
   uses: scribe-security/action-installer@master
   with:
       target: 'busybox:latest'
@@ -72,7 +76,7 @@ The command allows users to verify any target against its evidence.
 ```
 
 ## Configuration
-Use default configuration path `.gensbom.yaml`, or provide a custom path using `--config` flag.
+Use default configuration path `.valint.yaml`, or provide a custom path using `--config` flag.
 
 See detailed [configuration](docs/configuration.md)
 
@@ -108,7 +112,7 @@ job_example:
   permissions:
     id-token: write
   steps:
-    - name: gensbom attest
+    - name: valint attest
     uses: scribe-security/action-bom@master
     with:
         target: 'busybox:latest'
@@ -130,7 +134,7 @@ job_example:
   permissions:
     id-token: write
   steps:
-    - name: gensbom attest
+    - name: valint attest
     uses: scribe-security/action-bom@master
     with:
         target: 'busybox:latest'
@@ -143,10 +147,10 @@ job_example:
 
 Verify targets against a signed attestation.
 Default attestation config: `sigstore-github` - sigstore (Fulcio, Rekor). <br />
-Gensbom will look for both a bom or slsa attestation to verify against. <br />
+valint will look for both a bom or slsa attestation to verify against. <br />
 
 ```YAML
-- name: gensbom verify
+- name: valint verify
   uses: scribe-security/action-verify@master
   with:
     target: 'busybox:latest'
@@ -159,11 +163,11 @@ Gensbom will look for both a bom or slsa attestation to verify against. <br />
 
 Verify targets against a signed attestation. <br />
 Default attestation config: `sigstore-github` - sigstore (Fulcio, Rekor). <br />
-Gensbom will look for both a bom or slsa attestation to verify against. <br />
+valint will look for both a bom or slsa attestation to verify against. <br />
 
 
 ```YAML
-- name: gensbom verify
+- name: valint verify
   uses: scribe-security/action-verify@master
   with:
     target: 'busybox:latest'
@@ -178,7 +182,7 @@ Gensbom will look for both a bom or slsa attestation to verify against. <br />
 Full job example of a image signing and verifying flow.
 
 ```YAML
- gensbom-busybox-test:
+ valint-busybox-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -190,8 +194,8 @@ Full job example of a image signing and verifying flow.
         with:
           fetch-depth: 0
 
-      - name: gensbom attest
-        id: gensbom_attest
+      - name: valint attest
+        id: valint_attest
         uses: scribe-security/action-bom@master
         with:
            target: 'busybox:latest'
@@ -199,8 +203,8 @@ Full job example of a image signing and verifying flow.
            format: attest
            force: true
 
-      - name: gensbom verify
-        id: gensbom_verify
+      - name: valint verify
+        id: valint_verify
         uses: scribe-security/action-verify@master
         with:
            target: 'busybox:latest'
@@ -208,8 +212,8 @@ Full job example of a image signing and verifying flow.
 
       - uses: actions/upload-artifact@v2
         with:
-          name: gensbom-busybox-test
-          path: scribe/gensbom
+          name: valint-busybox-test
+          path: scribe/valint
 ``` 
 
 </details>
@@ -220,7 +224,7 @@ Full job example of a image signing and verifying flow.
 Full job example of a image signing and verifying flow.
 
 ```YAML
- gensbom-busybox-test:
+ valint-busybox-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -232,8 +236,8 @@ Full job example of a image signing and verifying flow.
         with:
           fetch-depth: 0
 
-      - name: gensbom attest slsa
-        id: gensbom_attest
+      - name: valint attest slsa
+        id: valint_attest
         uses: scribe-security/action-bom@master
         with:
            target: 'busybox:latest'
@@ -241,8 +245,8 @@ Full job example of a image signing and verifying flow.
            format: attest-slsa
            force: true
 
-      - name: gensbom verify attest slsa
-        id: gensbom_verify
+      - name: valint verify attest slsa
+        id: valint_verify
         uses: scribe-security/action-verify@master
         with:
            target: 'busybox:latest'
@@ -251,8 +255,8 @@ Full job example of a image signing and verifying flow.
 
       - uses: actions/upload-artifact@v2
         with:
-          name: gensbom-busybox-test
-          path: scribe/gensbom
+          name: valint-busybox-test
+          path: scribe/valint
 ``` 
 
 </details>
@@ -263,7 +267,7 @@ Full job example of a image signing and verifying flow.
 Full job example of a directory signing and verifying flow.
 
 ```YAML
-  gensbom-dir-test:
+  valint-dir-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -275,8 +279,8 @@ Full job example of a directory signing and verifying flow.
         with:
           fetch-depth: 0
 
-      - name: gensbom attest workdir
-        id: gensbom_attest_dir
+      - name: valint attest workdir
+        id: valint_attest_dir
         uses: scribe-security/action-bom@master
         with:
            type: dir
@@ -285,8 +289,8 @@ Full job example of a directory signing and verifying flow.
            format: attest
            force: true
 
-      - name: gensbom verify workdir
-        id: gensbom_verify_dir
+      - name: valint verify workdir
+        id: valint_verify_dir
         uses: scribe-security/action-verify@master
         with:
            type: dir
@@ -295,9 +299,9 @@ Full job example of a directory signing and verifying flow.
       
       - uses: actions/upload-artifact@v2
         with:
-          name: gensbom-workdir-evidence
+          name: valint-workdir-evidence
           path: |
-            scribe/gensbom      
+            scribe/valint      
 ``` 
 
 </details>
@@ -310,7 +314,7 @@ Full job example of a git repository signing and verifying flow.
 > Support for both local (path) and remote git (url) repositories.
 
 ```YAML
-  gensbom-dir-test:
+  valint-dir-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -322,8 +326,8 @@ Full job example of a git repository signing and verifying flow.
         with:
           fetch-depth: 0
 
-      - name: gensbom attest local repo
-        id: gensbom_attest_dir
+      - name: valint attest local repo
+        id: valint_attest_dir
         uses: scribe-security/action-bom@master
         with:
            type: git
@@ -332,8 +336,8 @@ Full job example of a git repository signing and verifying flow.
            format: attest
            force: true
 
-      - name: gensbom verify local repo
-        id: gensbom_verify_dir
+      - name: valint verify local repo
+        id: valint_verify_dir
         uses: scribe-security/action-verify@master
         with:
            type: git
@@ -342,25 +346,25 @@ Full job example of a git repository signing and verifying flow.
       
       - uses: actions/upload-artifact@v3
         with:
-          name: gensbom-git-evidence
+          name: valint-git-evidence
           path: |
-            scribe/gensbom      
+            scribe/valint      
 ``` 
 
 </details>
 
 <details>
-  <summary> Install gensbom (tool) </summary>
+  <summary> Install valint (tool) </summary>
 
-Install gensbom as a tool
+Install valint as a tool
 ```YAML
-- name: install gensbom
+- name: install valint
   uses: scribe-security/action-installer@master
 
-- name: gensbom run
+- name: valint run
   run: |
-    gensbom --version
-    gensbom bom busybox:latest -vv
+    valint --version
+    valint bom busybox:latest -vv
 ``` 
 </details>
 
