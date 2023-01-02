@@ -18,7 +18,7 @@ inputs:
     default: attest-cyclonedx-json
   output-directory:
     description: 'report output directory'
-    default: ./scribe/gensbom
+    default: ./scribe/valint
   output-file:
     description: 'Output result to file'
   filter-regex:
@@ -27,16 +27,21 @@ inputs:
   attest-config:
     description: 'Attestation config map'
   attest-name:
-    description: 'Attestation config name (default "gensbom")'
+    description: 'Attestation config name (default "valint")'
   attest-default:
     description: 'Attestation default config, options=[sigstore sigstore-github x509]'
     default: sigstore-github
   attestation:
     description: 'Attestation for target'
+  oci: 
+    description: 'Enable OCI store'
+    default: false
+  oci-repo:
+    description: 'Select OCI custom attestation repo'
 
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/gensbom:latest 
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:dev-latest 
   args:
     - verify
     - ${{ inputs.type }}:${{ inputs.target }}
@@ -52,7 +57,8 @@ runs:
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
     - ${{ inputs.output-file && '--output-file=' }}${{ inputs.output-file }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
-
+    - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
+    - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
 
 branding:
   icon: shield
