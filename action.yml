@@ -41,7 +41,7 @@ inputs:
 
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:dev-latest 
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:latest 
   args:
     - verify
     - ${{ inputs.type }}:${{ inputs.target }}
