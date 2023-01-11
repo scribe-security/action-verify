@@ -72,7 +72,6 @@ The command allows users to verify any target against its evidence.
   uses: scribe-security/action-installer@master
   with:
       target: 'busybox:latest'
-      verbose: 2
 ```
 
 ## Configuration
@@ -199,7 +198,6 @@ Full job example of a image signing and verifying flow.
         uses: scribe-security/action-bom@master
         with:
            target: 'busybox:latest'
-           verbose: 2
            format: attest
            force: true
 
@@ -208,7 +206,6 @@ Full job example of a image signing and verifying flow.
         uses: scribe-security/action-verify@master
         with:
            target: 'busybox:latest'
-           verbose: 2
 
       - uses: actions/upload-artifact@v2
         with:
@@ -241,7 +238,6 @@ Full job example of a image signing and verifying flow.
         uses: scribe-security/action-bom@master
         with:
            target: 'busybox:latest'
-           verbose: 2
            format: attest-slsa
            force: true
 
@@ -251,7 +247,6 @@ Full job example of a image signing and verifying flow.
         with:
            target: 'busybox:latest'
            input-format: attest-slsa
-           verbose: 2
 
       - uses: actions/upload-artifact@v2
         with:
@@ -285,7 +280,6 @@ Full job example of a directory signing and verifying flow.
         with:
            type: dir
            target: '/GitHub/workspace/'
-           verbose: 2
            format: attest
            force: true
 
@@ -295,7 +289,6 @@ Full job example of a directory signing and verifying flow.
         with:
            type: dir
            target: '/GitHub/workspace/'
-           verbose: 2
       
       - uses: actions/upload-artifact@v2
         with:
@@ -332,7 +325,6 @@ Full job example of a git repository signing and verifying flow.
         with:
            type: git
            target: '/GitHub/workspace/my_repo'
-           verbose: 2
            format: attest
            force: true
 
@@ -342,7 +334,6 @@ Full job example of a git repository signing and verifying flow.
         with:
            type: git
            target: '/GitHub/workspace/my_repo'
-           verbose: 2
       
       - uses: actions/upload-artifact@v3
         with:
@@ -364,7 +355,7 @@ Install valint as a tool
 - name: valint run
   run: |
     valint --version
-    valint bom busybox:latest -vv
+    valint bom busybox:latest
 ``` 
 </details>
 
