@@ -4,7 +4,7 @@ title: Attestations
 
 # Attestations
 Attestations represents authenticated metadata about a set of software artifacts (evidence). <br /> 
-scribe utilizes both attestations (signed) and statement (unsigned) to validate the integrity and policy compliance of your supply chain.
+Scribe utilizes both attestations (signed) and statement (unsigned) to validate the integrity and policy compliance of your supply chain. Scribe uses the **cocosign** library we developed to deal with digital signatures for signing and verification.
 
 ## Evidence 
 `cocosign` supports both signed and unsigned evidence.
@@ -12,7 +12,6 @@ scribe utilizes both attestations (signed) and statement (unsigned) to validate 
 * InToto attestation - signed evidence
 
 See details [In-toto spec](https://github.com/in-toto/attestation)
-
 
 ## Default configuration
 You can select from a set of prefilled default configuration.
@@ -106,7 +105,7 @@ verifier:
 
 
 ## Custom configuration
-Edit your main configuration, add the following subsection. \
+Edit your main configuration, add the following subsection. <br />
 For full configuration details see [configuration-format](#configuration-format).
 
 Usage:
