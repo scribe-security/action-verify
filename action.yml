@@ -70,7 +70,7 @@ inputs:
     default: https://api.production.scribesecurity.com
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:latest 
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:dev-latest 
   args:
     - verify
     - ${{ inputs.type }}:${{ inputs.target }}
