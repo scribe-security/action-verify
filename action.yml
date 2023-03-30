@@ -1,58 +1,65 @@
-name: 'Scribe evidence verify'
-description: 'Verify a Signed Software Bill Of Materials (SBOM) for container images, filesystems and git repositories'
+name: Scribe evidence verify
+description: Verify Software Bill Of Materials (SBOM) and other evidence for container images, filesystems and git repositories
 author: Mikey Strauss
 inputs:
-  type:
-    description: 'Target source type options=[docker,docker-archive, oci-archive, dir, registry, git]'
-    default: registry
   target:
-    description: Verify Software Bill Of Materials (SBOM) and other evidence for container images, filesystems and git repositories
+    description:
     required: true
-  verbose:
-    description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
-    default: 1
-  config:
-    description: Configuration file path
+  attestation:
+    description: Attestation for target
+  common-name:
+    description: Default policy allowed common names
+  email:
+    description: Default policy allowed emails
+  force:
+    description: Force skip cache
   input-format:
     description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json]
     default: attest-cyclonedx-json
-  output-directory:
-    description: Output directory path
-    default: ./scribe/valint
-  output-file:
-    description: Output file name
-  filter-regex:
-    description: Filter out files by regex
-    default: '**/*.pyc,**/.git/**'
+  uri:
+    description: Default policy allowed uris
   attest-config:
     description: Attestation config path
   attest-default:
     description: Attestation default config, options=[sigstore sigstore-github x509]
     default: sigstore
-  attestation:
-    description: Attestation for target
-  oci:
-    description: Enable OCI store
-    default: false
-  oci-repo:
-    description: Select OCI custom attestation repo
+  backoff:
+    description: Backoff duration
+    default: 15s
+  cache-enable:
+    description: Enable local cache
+    default: true
+  config:
+    description: Configuration file path
   context-dir:
     description: Context dir
-  context-type:
-    description: CI context type, options=[jenkins github circleci azure gitlab travis bitbucket local]
-    default: local
+  filter-regex:
+    description: Filter out files by regex
+    default: '**/*.pyc,**/.git/**'
   filter-scope:
     description: Filter packages by scope
-  force:
-    description: Force skip cache
-    default: false
+  git-branch:
+    description: Git branch in the repository
+  git-commit:
+    description: Git commit hash in the repository
+  git-tag:
+    description: Git tag in the repository
   label:
     description: Add Custom labels
   level:
     description: Log depth level, options=[panic fatal error warning info debug trace]
+  oci:
+    description: Enable OCI store
+  oci-repo:
+    description: Select OCI custom attestation repo
+  output-directory:
+    description: Output directory path
+    default: /home/runner/.cache/valint
+  output-file:
+    description: Output file name
   product-key:
     description: Scribe Project Key
-  scribe-audience:
+  scribe-auth-audience:
     description: Scribe auth audience
     default: api.production.scribesecurity.com
   scribe-client-id:
@@ -61,29 +68,42 @@ inputs:
     description: Scribe Client Secret
   scribe-enable:
     description: Enable scribe client
-    default: false
   scribe-login-url:
     description: Scribe login url
     default: https://scribesecurity-production.us.auth0.com
   scribe-url:
     description: Scribe API Url
     default: https://api.production.scribesecurity.com
+  timeout:
+    description: Timeout duration
+    default: 120s
+  verbose:
+    description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
+    default: 1
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:dev-latest 
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:dev-latest
   args:
     - verify
-    - ${{ inputs.type }}:${{ inputs.target }}
+    - ${{ inputs.target}}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
+    - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
+    - ${{ inputs.email && '--email=' }}${{ inputs.email }}
     - ${{ inputs.force && '--force=' }}${{ inputs.force }}
     - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
+    - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
+    - ${{ inputs.backoff && '--backoff=' }}${{ inputs.backoff }}
+    - ${{ inputs.cache-enable && '--cache-enable=' }}${{ inputs.cache-enable }}
     - ${{ inputs.config && '--config=' }}${{ inputs.config }}
     - ${{ inputs.context-dir && '--context-dir=' }}${{ inputs.context-dir }}
     - --context-type=github
     - ${{ inputs.filter-regex && '--filter-regex=' }}${{ inputs.filter-regex }}
     - ${{ inputs.filter-scope && '--filter-scope=' }}${{ inputs.filter-scope }}
+    - ${{ inputs.git-branch && '--git-branch=' }}${{ inputs.git-branch }}
+    - ${{ inputs.git-commit && '--git-commit=' }}${{ inputs.git-commit }}
+    - ${{ inputs.git-tag && '--git-tag=' }}${{ inputs.git-tag }}
     - ${{ inputs.label && '--label=' }}${{ inputs.label }}
     - ${{ inputs.level && '--level=' }}${{ inputs.level }}
     - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
@@ -91,14 +111,14 @@ runs:
     - ${{ inputs.output-directory && '--output-directory=' }}${{ inputs.output-directory }}
     - ${{ inputs.output-file && '--output-file=' }}${{ inputs.output-file }}
     - ${{ inputs.product-key && '--product-key=' }}${{ inputs.product-key }}
-    - ${{ inputs.scribe-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-audience }}
+    - ${{ inputs.scribe-auth-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-auth-audience }}
     - ${{ inputs.scribe-client-id && '--scribe.client-id=' }}${{ inputs.scribe-client-id }}
     - ${{ inputs.scribe-client-secret && '--scribe.client-secret=' }}${{ inputs.scribe-client-secret }}
     - ${{ inputs.scribe-enable && '--scribe.enable=' }}${{ inputs.scribe-enable }}
     - ${{ inputs.scribe-login-url && '--scribe.login-url=' }}${{ inputs.scribe-login-url }}
     - ${{ inputs.scribe-url && '--scribe.url=' }}${{ inputs.scribe-url }}
+    - ${{ inputs.timeout && '--timeout=' }}${{ inputs.timeout }}
     - ${{ inputs.verbose && '--verbose=' }}${{ inputs.verbose }}
-
 branding:
   icon: shield
   color: green
