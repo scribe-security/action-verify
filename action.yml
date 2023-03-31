@@ -2,6 +2,8 @@ name: Scribe evidence verify
 description: Verify Software Bill Of Materials (SBOM) and other evidence for container images, filesystems and git repositories
 author: Mikey Strauss
 inputs:
+  type:
+    description: 'Target source type options=[docker,docker-archive, oci-archive, dir, registry, git]'
   target:
     description:
     required: true
@@ -54,12 +56,12 @@ inputs:
     description: Select OCI custom attestation repo
   output-directory:
     description: Output directory path
-    default: /home/runner/.cache/valint
+    default: ./scribe/valint
   output-file:
     description: Output file name
   product-key:
     description: Scribe Project Key
-  scribe-auth-audience:
+  scribe-audience:
     description: Scribe auth audience
     default: api.production.scribesecurity.com
   scribe-client-id:
@@ -85,7 +87,7 @@ runs:
   image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:dev-latest
   args:
     - verify
-    - ${{ inputs.target}}
+    - ${{ inputs.type }}:${{ inputs.target}}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
     - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
@@ -111,7 +113,7 @@ runs:
     - ${{ inputs.output-directory && '--output-directory=' }}${{ inputs.output-directory }}
     - ${{ inputs.output-file && '--output-file=' }}${{ inputs.output-file }}
     - ${{ inputs.product-key && '--product-key=' }}${{ inputs.product-key }}
-    - ${{ inputs.scribe-auth-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-auth-audience }}
+    - ${{ inputs.scribe-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-audience }}
     - ${{ inputs.scribe-client-id && '--scribe.client-id=' }}${{ inputs.scribe-client-id }}
     - ${{ inputs.scribe-client-secret && '--scribe.client-secret=' }}${{ inputs.scribe-client-secret }}
     - ${{ inputs.scribe-enable && '--scribe.enable=' }}${{ inputs.scribe-enable }}
