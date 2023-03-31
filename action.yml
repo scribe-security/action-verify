@@ -87,7 +87,7 @@ runs:
   image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:dev-latest
   args:
     - verify
-    - ${{ inputs.type && '${{ inputs.type }}:' }}${{ inputs.target }}
+    - ${{ inputs.type }}${{ inputs.type && ':' }}${{ inputs.target }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
     - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
