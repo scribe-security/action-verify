@@ -28,40 +28,86 @@ The command allows users to verify any target against its evidence.
 
 ### Input arguments
 ```yaml
- type:
+  type:
     description: 'Target source type options=[docker,docker-archive, oci-archive, dir, registry, git]'
-    default: registry
   target:
-    description: 'Target object name format=[<image:tag>, <dir path>, <git url>]'
+    description:
     required: true
-  verbose:
-    description: 'Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug'
-    default: 1
-  config:
-    description: 'Application config file'
+  attestation:
+    description: Attestation for target
+  common-name:
+    description: Default policy allowed common names
+  email:
+    description: Default policy allowed emails
+  force:
+    description: Force skip cache
   input-format:
-    description: 'Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json]'
+    description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json]
     default: attest-cyclonedx-json
+  uri:
+    description: Default policy allowed uris
+  attest-config:
+    description: Attestation config path
+  attest-default:
+    description: Attestation default config, options=[sigstore sigstore-github x509]
+    default: sigstore
+  backoff:
+    description: Backoff duration
+    default: 15s
+  cache-enable:
+    description: Enable local cache
+    default: true
+  config:
+    description: Configuration file path
+  context-dir:
+    description: Context dir
+  filter-regex:
+    description: Filter out files by regex
+    default: '**/*.pyc,**/.git/**'
+  filter-scope:
+    description: Filter packages by scope
+  git-branch:
+    description: Git branch in the repository
+  git-commit:
+    description: Git commit hash in the repository
+  git-tag:
+    description: Git tag in the repository
+  label:
+    description: Add Custom labels
+  level:
+    description: Log depth level, options=[panic fatal error warning info debug trace]
+  oci:
+    description: Enable OCI store
+  oci-repo:
+    description: Select OCI custom attestation repo
   output-directory:
-    description: 'Output directory path'
+    description: Output directory path
     default: ./scribe/valint
   output-file:
-    description: 'Output result to file'
-  filter-regex:
-    description: 'Filter out files by regex'
-    default: .*\.pyc,\.git/.*
-  attest-config:
-    description: 'Attestation config map'
-  attest-default:
-    description: 'Attestation default config, options=[sigstore sigstore-github x509]'
-    default: sigstore-github
-  attestation:
-    description: 'Attestation for target'
-  oci:
-    description: 'Enable OCI store'
-    default: false
-  oci-repo:
-    description: 'Select OCI custom attestation repo'
+    description: Output file name
+  product-key:
+    description: Scribe Project Key
+  scribe-audience:
+    description: Scribe auth audience
+    default: api.production.scribesecurity.com
+  scribe-client-id:
+    description: Scribe Client ID
+  scribe-client-secret:
+    description: Scribe Client Secret
+  scribe-enable:
+    description: Enable scribe client
+  scribe-login-url:
+    description: Scribe login url
+    default: https://scribesecurity-production.us.auth0.com
+  scribe-url:
+    description: Scribe API Url
+    default: https://api.production.scribesecurity.com
+  timeout:
+    description: Timeout duration
+    default: 120s
+  verbose:
+    description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
+    default: 1
 
 ```
 
@@ -96,52 +142,148 @@ Scribe uses the **cocosign** library we developed to deal with digital signature
 See details [In-toto spec](https://github.com/in-toto/attestation)
 See details [attestations](docs/attestations.md)
 
+## Target types - `[target]`
+---
+Target types are types of artifacts produced and consumed by your supply chain.
+Using supported targets, you can collect evidence and verify compliance on a range of artifacts.
+
+> Fields specified as [target] support the following format.
+
+### Format
+
+`[scheme]:[name]:[tag]` 
+
+> Backwards compatibility: It is still possible to use the `type: [scheme]`, `target: [name]:[tag]` format.
+
+| Sources | target-type | scheme | Description | example
+| --- | --- | --- | --- | --- |
+| Docker Daemon | image | docker | use the Docker daemon | docker:busybox:latest |
+| OCI registry | image | registry | use the docker registry directly | registry:busybox:latest |
+| Docker archive | image | docker-archive | use a tarball from disk for archives created from "docker save" | image | docker-archive:path/to/yourimage.tar |
+| OCI archive | image | oci-archive | tarball from disk for OCI archives | oci-archive:path/to/yourimage.tar |
+| Remote git | git| git | remote repository git | git:https://github.com/yourrepository.git |
+| Local git | git | git | local repository git | git:path/to/yourrepository | 
+| Directory | dir | dir | directory path on disk | dir:path/to/yourproject | 
+| File | file | file | file path on disk | file:path/to/yourproject/file | 
+
+### Evidence Stores
+Each storer can be used to store, find and download evidence, unifying all the supply chain evidence into a system is an important part to be able to query any subset for policy validation.
+
+| Type  | Description | requirement |
+| --- | --- | --- |
+| scribe | Evidence is stored on scribe service | scribe credentials |
+| OCI | Evidence is stored on a remote OCI registry | access to a OCI registry |
+
+## Scribe Evidence store
+Scribe evidence store allows you store evidence using scribe Service.
+
+Related Flags:
+> Note the flag set:
+>* `scribe-client-id`
+>* `scribe-client-secret`
+>* `scribe-enable`
+
+### Before you begin
+Integrating Scribe Hub with your environment requires the following credentials that are found in the **Integrations** page. (In your **[Scribe Hub](https://prod.hub.scribesecurity.com/ "Scribe Hub Link")** go to **integrations**)
+
+* **Client ID**
+* **Client Secret**
+
+<img src='../../img/ci/integrations-secrets.jpg' alt='Scribe Integration Secrets' width='70%' min-width='400px'/>
+
+* Add the credentials according to the [GitHub instructions](https://docs.github.com/en/actions/security-guides/encrypted-secrets/ "GitHub Instructions"). Based on the code example below, be sure to call the secrets **clientid** for the **client_id**, and **clientsecret** for the **client_secret**.
+
+* Use the Scribe custom pipe as shown in the example bellow
+
+### Usage
+
+```yaml
+name:  scribe_github_workflow
+
+on: 
+  push:
+    tags:
+      - "*"
+
+jobs:
+  scribe-report-test:
+    runs-on: ubuntu-latest
+    steps:
+
+        uses: scribe-security/action-bom@master
+        with:
+          target: [target]
+          format: [attest, statement, attest-slsa, statement-slsa]
+          scribe-enable: true
+          scribe-client-id: ${{ secrets.clientid }}
+          scribe-client-secret: ${{ secrets.clientsecret }}
+
+        uses: scribe-security/action-verify@master
+        with:
+          target: [target]
+          format: [attest, statement, attest-slsa, statement-slsa]
+          scribe-enable: true
+          scribe-client-id: ${{ secrets.clientid }}
+          scribe-client-secret: ${{ secrets.clientsecret }}
+```
+
+## OCI Evidence store
+Valint supports both storage and verification flows for `attestations` and `statement` objects utilizing OCI registry as an evidence store.
+
+Using OCI registry as an evidence store allows you to upload, download and verify evidence across your supply chain in a seamless manner.
+
+Related flags:
+* `oci` Enable OCI store.
+* `oci-repo` - Evidence store location.
+
+### Before you begin
+Evidence can be stored in any accusable registry.
+* Write access is required for upload (generate).
+* Read access is required for download (verify).
+
+You must first login with the required access privileges to your registry before calling Valint.
+For example, using `docker login` command or `docker/login-action` action.
+
+### Usage
+```yaml
+name:  scribe_github_workflow
+
+on: 
+  push:
+    tags:
+      - "*"
+
+jobs:
+  scribe-report-test:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.my_registry }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name:  Generate evidence step
+        uses: scribe-security/action-bom@master
+        with:
+          target: [target]
+          format: [attest, statement, attest-slsa, statement-slsa]
+          oci: true
+          oci-repo: [oci_repo]
+
+      - name:  Verify policy step
+        uses: scribe-security/action-verify@master
+        with:
+          target: [target]
+          format: [attest, statement, attest-slsa, statement-slsa]
+          oci: true
+          oci-repo: [oci_repo]
+```
+
+
 ## Verify SBOMs examples
-
-<details>
-  <summary> Attest target (SBOM) </summary>
-
-Create and sign SBOM targets. <br />
-By default the `sigstore-github` flow is used, GitHub workload identity and Sigstore (Fulcio, Rekor).
-
->Default attestation config **Required** `id-token` permission access. <br />
-
-```YAML
-job_example:
-  runs-on: ubuntu-latest
-  permissions:
-    id-token: write
-  steps:
-    - name: valint attest
-    uses: scribe-security/action-bom@master
-    with:
-        target: 'busybox:latest'
-        format: attest
-``` 
-</details>
-
-<details>
-  <summary> Attest target (SLSA) </summary>
-
-Create and sign SLSA targets. <br />
-By default the `sigstore-github` flow is used, GitHub workload identity and Sigstore (Fulcio, Rekor).
-
->Default attestation config **Required** `id-token` permission access. <br />
-
-```YAML
-job_example:
-  runs-on: ubuntu-latest
-  permissions:
-    id-token: write
-  steps:
-    - name: valint attest
-    uses: scribe-security/action-bom@master
-    with:
-        target: 'busybox:latest'
-        format: attest-slsa
-``` 
-</details>
-
 <details>
   <summary> Verify target (SBOM) </summary>
 
@@ -177,7 +319,7 @@ valint will look for both a bom or slsa attestation to verify against. <br />
 </details>
 
 <details>
-  <summary> Attest and verify image target (SBOM) </summary>
+  <summary> Verify Policy flow - image target (Signed SBOM) </summary>
 
 Full job example of a image signing and verifying flow.
 
@@ -217,7 +359,7 @@ Full job example of a image signing and verifying flow.
 </details>
 
 <details>
-  <summary> Attest and verify image target (SLSA) </summary>
+  <summary> Verify Policy flow - image target (Signed SLSA) </summary>
 
 Full job example of a image signing and verifying flow.
 
@@ -258,7 +400,7 @@ Full job example of a image signing and verifying flow.
 </details>
 
 <details>
-  <summary> Attest and verify directory target (SBOM) </summary>
+  <summary> Verify Policy flow - Directory target (Signed SBOM) </summary>
 
 Full job example of a directory signing and verifying flow.
 
@@ -302,7 +444,7 @@ Full job example of a directory signing and verifying flow.
 
 
 <details>
-  <summary> Attest and verify Git repository target (SBOM) </summary>
+  <summary> Verify Policy flow - Git repository target (Signed SBOM) </summary>
 
 Full job example of a git repository signing and verifying flow.
 > Support for both local (path) and remote git (url) repositories.
@@ -342,6 +484,64 @@ Full job example of a git repository signing and verifying flow.
           path: |
             scribe/valint      
 ``` 
+</details>
+
+<details>
+  <summary> Attest and verify evidence on OCI (SBOM,SLSA) </summary>
+
+Store any evidence on any OCI registry. <br />
+Support storage for all targets and both SBOM and SLSA evidence formats.
+
+> Use input variable `format` to select between supported formats. <br />
+> Write permission to `oci-repo` is required. 
+
+```YAML
+valint-dir-test:
+  runs-on: ubuntu-latest
+  permissions:
+    id-token: write
+  env:
+    DOCKER_CONFIG: $HOME/.docker
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+
+      - uses: scribe-security/action-bom@dev
+        id: valint_attest
+        with:
+          target: busybox:latest
+          force: true
+          format: attest
+          oci: true
+          oci-repo: ${{ env.REGISTRY_URL }}/attestations    
+``` 
+
+Following actions can be used to verify a target over the OCI store.
+```yaml
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+
+      - uses: scribe-security/action-verify@dev
+        id: valint_attest
+        with:
+          target: busybox:latest
+          input-format: attest
+          oci: true
+          oci-repo: ${{ env.REGISTRY_URL }}/attestations   
+```
+> Read permission to `oci-repo` is required. 
 
 </details>
 
