@@ -1,12 +1,17 @@
 name: Scribe evidence verify
-description: Verify Software Bill Of Materials (SBOM) and other evidence for container images, filesystems and git repositories
+description: Verify compliance policies against evidence to ensure the integrity of supply chain.
 author: Mikey Strauss
 inputs:
-  type:
-    description: 'Target source type options=[docker,docker-archive, oci-archive, dir, registry, git]'
   target:
-    description:
+    description: Target object name format=[<image:tag>, <dir path>, <git url>]
     required: true
+  type:
+    description: Target source type scheme=[docker,docker-archive, oci-archive, dir, registry, git, generic]
+    deprecationMessage: Please use target fields, formated [type]:[target]:[tag]
+  scribe-audience:
+    description: Scribe auth audience
+    deprecationMessage: Please use scribe-auth-audience instead
+    default: api.production.scribesecurity.com
   attestation:
     description: Attestation for target
   common-name:
@@ -16,10 +21,14 @@ inputs:
   force:
     description: Force skip cache
   input-format:
-    description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json]
+    description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic]
     default: attest-cyclonedx-json
   uri:
     description: Default policy allowed uris
+  app-name:
+    description: Logical application name
+  app-version:
+    description: Logical application version
   attest-config:
     description: Attestation config path
   attest-default:
@@ -35,6 +44,8 @@ inputs:
     description: Configuration file path
   context-dir:
     description: Context dir
+  env:
+    description: Environment keys to include in sbom
   filter-regex:
     description: Filter out files by regex
     default: '**/*.pyc,**/.git/**'
@@ -59,9 +70,16 @@ inputs:
     default: ./scribe/valint
   output-file:
     description: Output file name
+  pipeline-name:
+    description: Pipeline name
+  predicate-type:
+    description: Custom Predicate type (generic evidence format)
+    default: http://scribesecurity.com/evidence/generic/v0.1
   product-key:
-    description: Scribe Project Key
-  scribe-audience:
+    description: Product Key
+  product-version:
+    description: Product Version
+  scribe-auth-audience:
     description: Scribe auth audience
     default: api.production.scribesecurity.com
   scribe-client-id:
@@ -76,6 +94,8 @@ inputs:
   scribe-url:
     description: Scribe API Url
     default: https://api.production.scribesecurity.com
+  structured:
+    description: Enable structured logger
   timeout:
     description: Timeout duration
     default: 120s
@@ -88,12 +108,15 @@ runs:
   args:
     - verify
     - ${{ inputs.type }}${{ inputs.type && ':' }}${{ inputs.target }}
+    - ${{ inputs.scribe-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-audience }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
     - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
     - ${{ inputs.force && '--force=' }}${{ inputs.force }}
     - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
     - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
+    - ${{ inputs.app-name && '--app-name=' }}${{ inputs.app-name }}
+    - ${{ inputs.app-version && '--app-version=' }}${{ inputs.app-version }}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
     - ${{ inputs.backoff && '--backoff=' }}${{ inputs.backoff }}
@@ -101,6 +124,7 @@ runs:
     - ${{ inputs.config && '--config=' }}${{ inputs.config }}
     - ${{ inputs.context-dir && '--context-dir=' }}${{ inputs.context-dir }}
     - --context-type=github
+    - ${{ inputs.env && '--env=' }}${{ inputs.env }}
     - ${{ inputs.filter-regex && '--filter-regex=' }}${{ inputs.filter-regex }}
     - ${{ inputs.filter-scope && '--filter-scope=' }}${{ inputs.filter-scope }}
     - ${{ inputs.git-branch && '--git-branch=' }}${{ inputs.git-branch }}
@@ -112,13 +136,17 @@ runs:
     - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
     - ${{ inputs.output-directory && '--output-directory=' }}${{ inputs.output-directory }}
     - ${{ inputs.output-file && '--output-file=' }}${{ inputs.output-file }}
+    - ${{ inputs.pipeline-name && '--pipeline-name=' }}${{ inputs.pipeline-name }}
+    - ${{ inputs.predicate-type && '--predicate-type=' }}${{ inputs.predicate-type }}
     - ${{ inputs.product-key && '--product-key=' }}${{ inputs.product-key }}
-    - ${{ inputs.scribe-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-audience }}
+    - ${{ inputs.product-version && '--product-version=' }}${{ inputs.product-version }}
+    - ${{ inputs.scribe-auth-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-auth-audience }}
     - ${{ inputs.scribe-client-id && '--scribe.client-id=' }}${{ inputs.scribe-client-id }}
     - ${{ inputs.scribe-client-secret && '--scribe.client-secret=' }}${{ inputs.scribe-client-secret }}
     - ${{ inputs.scribe-enable && '--scribe.enable=' }}${{ inputs.scribe-enable }}
     - ${{ inputs.scribe-login-url && '--scribe.login-url=' }}${{ inputs.scribe-login-url }}
     - ${{ inputs.scribe-url && '--scribe.url=' }}${{ inputs.scribe-url }}
+    - ${{ inputs.structured && '--structured=' }}${{ inputs.structured }}
     - ${{ inputs.timeout && '--timeout=' }}${{ inputs.timeout }}
     - ${{ inputs.verbose && '--verbose=' }}${{ inputs.verbose }}
 branding:
