@@ -32,7 +32,7 @@ inputs:
   attest-config:
     description: Attestation config path
   attest-default:
-    description: Attestation default config, options=[sigstore sigstore-github x509]
+    description: Attestation default config, options=[sigstore sigstore-github x509 x509-env]
     default: sigstore
   backoff:
     description: Backoff duration
