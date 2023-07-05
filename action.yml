@@ -90,10 +90,10 @@ inputs:
     description: Enable scribe client
   scribe-login-url:
     description: Scribe login url
-    default: https://scribesecurity-production.us.auth0.com
+    default: https://scribe-hub-production.us.auth0.com
   scribe-url:
     description: Scribe API Url
-    default: https://api.production.scribesecurity.com
+    default: https://airflow.scribesecurity.com
   structured:
     description: Enable structured logger
   timeout:
