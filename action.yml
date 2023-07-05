@@ -11,7 +11,7 @@ inputs:
   scribe-audience:
     description: Scribe auth audience
     deprecationMessage: Please use scribe-auth-audience instead
-    default: api.production.scribesecurity.com
+    required: false
   attestation:
     description: Attestation for target
   common-name:
@@ -81,7 +81,7 @@ inputs:
     description: Product Version
   scribe-auth-audience:
     description: Scribe auth audience
-    default: api.production.scribesecurity.com
+    required: false
   scribe-client-id:
     description: Scribe Client ID
   scribe-client-secret:
