@@ -1,38 +1,38 @@
 ---
 sidebar_label: "Verify"
-title: Scribe Github Action for `valint verify`
-sidebar_position: 2
+title: Scribe GitHub Action for `valint verify`
+sidebar_position: 3
+toc_min_heading_level: 2
+toc_max_heading_level: 5
 ---
 
 Scribe offers GitHub Actions for embedding evidence collecting and validated integrity of your supply chain.
 
 Use `valint verify` to verify evidence (attestations) and policies.
 
-Further documentation [Github integration](https://scribe-security.netlify.app/docs/how-to-run-scribe/ci-integrations/github/)
-
-
-### Other Actions
-* [bom](action-bom), [source](https://github.com/scribe-security/action-bom)
-* [verify](action-verify), [source](https://github.com/scribe-security/action-verify)
-* [installer](action-installer), [source](https://github.com/scribe-security/action-installer)
-
+Further documentation **[GitHub integration](../../../integrating-scribe/ci-integrations/github)**.
 
 ### Verify Action
-Action for `valint verify`.
 The command allows users to verify any target against its evidence.
 - Verify image, directory, file or git targets.
 - Verify evidence policy compliance across the supply chain.
 - Pull evidence from scribe service.
 - Download and search evidence in all enabled stores.
-- Support Sigstore keyless verifying as well as [Github workload identity](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect).
+- Support Sigstore keyless verifying as well as **[GitHub workload identity](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect)**.
 
 ### Input arguments
 ```yaml
-  type:
-    description: 'Target source type options=[docker,docker-archive, oci-archive, dir, registry, git]'
   target:
-    description:
+    description: Target object name format=[<image:tag>, <dir path>, <git url>]
     required: true
+  type:
+    description: Target source type scheme=[docker,docker-archive, oci-archive, dir, registry, git, generic]
+    deprecationMessage: Please use target fields, formated [type]:[target]:[tag]
+    required: false
+  scribe-audience:
+    description: Scribe auth audience
+    deprecationMessage: Please use scribe-auth-audience instead
+    required: false
   attestation:
     description: Attestation for target
   common-name:
@@ -42,28 +42,25 @@ The command allows users to verify any target against its evidence.
   force:
     description: Force skip cache
   input-format:
-    description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic]
-    default: attest-cyclonedx-json
+    description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic]
   uri:
     description: Default policy allowed uris
   attest-config:
     description: Attestation config path
   attest-default:
-    description: Attestation default config, options=[sigstore sigstore-github x509]
-    default: sigstore
+    description: Attestation default config, options=[sigstore sigstore-github x509 x509-env]
   backoff:
     description: Backoff duration
-    default: 15s
   cache-enable:
     description: Enable local cache
-    default: true
   config:
     description: Configuration file path
   context-dir:
     description: Context dir
+  env:
+    description: Environment keys to include in sbom
   filter-regex:
     description: Filter out files by regex
-    default: '**/*.pyc,**/.git/**'
   filter-scope:
     description: Filter packages by scope
   git-branch:
@@ -85,11 +82,17 @@ The command allows users to verify any target against its evidence.
     default: ./scribe/valint
   output-file:
     description: Output file name
+  pipeline-name:
+    description: Pipeline name
+  predicate-type:
+    description: Custom Predicate type (generic evidence format)
   product-key:
-    description: Scribe Project Key
-  scribe-audience:
+    description: Product Key
+  product-version:
+    description: Product Version
+  scribe-auth-audience:
     description: Scribe auth audience
-    default: api.production.scribesecurity.com
+    required: false
   scribe-client-id:
     description: Scribe Client ID
   scribe-client-secret:
@@ -98,17 +101,14 @@ The command allows users to verify any target against its evidence.
     description: Enable scribe client
   scribe-login-url:
     description: Scribe login url
-    default: https://scribesecurity-production.us.auth0.com
   scribe-url:
     description: Scribe API Url
-    default: https://api.production.scribesecurity.com
+  structured:
+    description: Enable structured logger
   timeout:
     description: Timeout duration
-    default: 120s
   verbose:
     description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
-    default: 1
-
 ```
 
 ### Usage
@@ -121,9 +121,9 @@ The command allows users to verify any target against its evidence.
 ```
 
 ### Configuration
-Use default configuration path `.valint.yaml`, or provide a custom path using `--config` flag.
+If you prefer using a custom configuration file instead of specifying arguments directly, you have two choices. You can either place the configuration file in the default path, which is `.valint.yaml`, or you can specify a custom path using the `config` argument.
 
-See detailed [configuration](docs/configuration)
+For a comprehensive overview of the configuration file's structure and available options, please refer to the CLI configuration documentation.
 
 
 ### Attestations 
@@ -131,25 +131,25 @@ Attestations allow you to sign and verify your targets. <br />
 Attestations allow you to connect PKI-based identities to your evidence and policy management.  <br />
 
 Supported outputs:
-- In-toto predicate - Cyclonedx SBOM, SLSA Provenance (unsigned evidence)
-- In-toto statements - Cyclonedx SBOM, SLSA Provenance (unsigned evidence)
-- In-toto attestations -Cyclonedx SBOM, SLSA Provenance (signed evidence)
+- In-toto predicate - CycloneDX SBOM, SLSA Provenance (unsigned evidence)
+- In-toto statements - CycloneDX SBOM, SLSA Provenance (unsigned evidence)
+- In-toto attestations -CycloneDX SBOM, SLSA Provenance (signed evidence)
 
 Select default configuration using `--attest.default` flag. <br />
-Select a custom configuration by providing `cocosign` field in the [configuration](docs/configuration) or custom path using `--attest.config`.
+Select a custom configuration by providing `cocosign` field in the **[configuration](../configuration)** or custom path using `--attest.config`.
 Scribe uses the **cocosign** library we developed to deal with digital signatures for signing and verification.
 
-See details [In-toto spec](https://github.com/in-toto/attestation)
-See details [attestations](docs/attestations)
+* See details of in-toto spec **[here](https://github.com/in-toto/attestation)**.
+* See details of what attestations are and how to use them **[here](../attestations)**.
 
 ### Storing Keys in Secret Vault
 
-Github exposes secrets from its vault using envrionment varuables, you may provide these envrionments as secret to valint.
+GitHub exposes secrets from its vault using environment variables, you may provide these environments as secret to Valint.
 
-> Paths names prefixed with `env://[NAME]` are read from the envrionment matching the name.
+> Paths names prefixed with `env://[NAME]` are read from the environment matching the name.
 
 <details>
-  <summary> Github Secret Vault </summary>
+  <summary> GitHub Secret Vault </summary>
 
 X509 Signer enables the utilization of environments for supplying key, certificate, and CA files in order to sign and verify attestations. It is commonly employed in conjunction with Secret Vaults, where secrets are exposed through environments.
 
@@ -158,7 +158,7 @@ X509 Signer enables the utilization of environments for supplying key, certifica
 
 For example the following configuration and Job.
 
-Configuraiton File, `.valint.yaml`
+configuration File, `.valint.yaml`
 ```yaml
 attest:
   cocosign:
@@ -256,7 +256,7 @@ Integrating Scribe Hub with your environment requires the following credentials 
 
 <img src='../../../../../img/ci/integrations-secrets.jpg' alt='Scribe Integration Secrets' width='70%' min-width='400px'/>
 
-* Add the credentials according to the [GitHub instructions](https://docs.github.com/en/actions/security-guides/encrypted-secrets/ "GitHub Instructions"). Based on the code example below, be sure to call the secrets **clientid** for the **client_id**, and **clientsecret** for the **client_secret**.
+* Add the credentials according to the **[GitHub instructions](https://docs.github.com/en/actions/security-guides/encrypted-secrets/ "GitHub Instructions")**. Based on the code example below, be sure to call the secrets **clientid** for the **client_id**, and **clientsecret** for the **client_secret**.
 
 * Use the Scribe custom pipe as shown in the example bellow
 
@@ -286,13 +286,19 @@ jobs:
         uses: scribe-security/action-verify@master
         with:
           target: [target]
-          format: [attest, statement, attest-slsa, statement-slsa, attest-generic, statement-generic]
+          input-format: [attest, statement, attest-slsa, statement-slsa, attest-generic, statement-generic]
           scribe-enable: true
           scribe-client-id: ${{ secrets.clientid }}
           scribe-client-secret: ${{ secrets.clientsecret }}
 ```
 
-### OCI Evidence store
+You can store the Provenance Document in alternative evidence stores. You can learn more about them **[here](../../../other-evidence-stores)**.
+
+### Alternative evidence stores
+> You can learn more about alternative stores **[here](../other-evidence-stores)**.
+
+<details>
+  <summary> <b> OCI Evidence store </b></summary>
 Valint supports both storage and verification flows for `attestations` and `statement` objects utilizing OCI registry as an evidence store.
 
 Using OCI registry as an evidence store allows you to upload, download and verify evidence across your supply chain in a seamless manner.
@@ -342,21 +348,22 @@ jobs:
         uses: scribe-security/action-verify@master
         with:
           target: [target]
-          format: [attest, statement, attest-slsa, statement-slsa, attest-generic, statement-generic]
+          input-format: [attest, statement, attest-slsa, statement-slsa, attest-generic, statement-generic]
           oci: true
           oci-repo: [oci_repo]
 ```
+</details>
 
 
 ### Verify SBOMs examples
 <details>
   <summary> Verify target (SBOM) </summary>
 
-Verify targets against a signed attestation.
-Default attestation config: `sigstore-github` - sigstore (Fulcio, Rekor). <br />
-valint will look for both a bom or slsa attestation to verify against. <br />
+Verify targets against a signed attestation.  
+Default attestation config: `sigstore-github` - Sigstore (Fulcio, Rekor).  
+Valint will look for either an SBOM or SLSA attestation to verify against.  
 
-```YAML
+```yaml
 - name: valint verify
   uses: scribe-security/action-verify@master
   with:
@@ -369,11 +376,11 @@ valint will look for both a bom or slsa attestation to verify against. <br />
   <summary> Verify target (SLSA) </summary>
 
 Verify targets against a signed attestation. <br />
-Default attestation config: `sigstore-github` - sigstore (Fulcio, Rekor). <br />
-valint will look for both a bom or slsa attestation to verify against. <br />
+Default attestation config: `sigstore-github` - Sigstore (Fulcio, Rekor). <br />
+Valint will look for either an SBOM or SLSA attestation to verify against. <br />
 
 
-```YAML
+```yaml
 - name: valint verify
   uses: scribe-security/action-verify@master
   with:
@@ -384,14 +391,14 @@ valint will look for both a bom or slsa attestation to verify against. <br />
 </details>
 
 <details>
-  <summary> Verify target (Gernic) </summary>
+  <summary> Verify target (Generic) </summary>
 
 Verify targets against a signed attestation. <br />
-Default attestation config: `sigstore-github` - sigstore (Fulcio, Rekor). <br />
-valint will look for both a bom or slsa attestation to verify against. <br />
+Default attestation config: `sigstore-github` - Sigstore (Fulcio, Rekor). <br />
+Valint will look for either an SBOM or SLSA attestation to verify against. <br />
 
 
-```YAML
+```yaml
 - name: valint verify
   uses: scribe-security/action-verify@master
   with:
@@ -530,7 +537,7 @@ Full job example of a directory signing and verifying flow.
   <summary> Verify Policy flow - Git repository target (Signed SBOM) </summary>
 
 Full job example of a git repository signing and verifying flow.
-> Support for both local (path) and remote git (url) repositories.
+> Support for both local (path) and remote git (URL) repositories.
 
 ```YAML
   valint-dir-test:
@@ -570,7 +577,7 @@ Full job example of a git repository signing and verifying flow.
 </details>
 
 <details>
-  <summary> Attest and verify evidence on OCI (SBOM,SLSA) </summary>
+  <summary> Attest and verify evidence on OCI (SBOM, SLSA) </summary>
 
 Store any evidence on any OCI registry. <br />
 Support storage for all targets and both SBOM and SLSA evidence formats.
@@ -597,7 +604,7 @@ valint-dir-test:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
-      - uses: scribe-security/action-bom@dev
+      - uses: scribe-security/action-bom@master
         id: valint_attest
         with:
           target: busybox:latest
@@ -616,7 +623,7 @@ Following actions can be used to verify a target over the OCI store.
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_TOKEN }}
 
-      - uses: scribe-security/action-verify@dev
+      - uses: scribe-security/action-verify@master
         id: valint_attest
         with:
           target: busybox:latest
@@ -629,10 +636,10 @@ Following actions can be used to verify a target over the OCI store.
 </details>
 
 <details>
-  <summary> Install valint (tool) </summary>
+  <summary> Install Valint (tool) </summary>
 
-Install valint as a tool
-```YAML
+Install Valint as a tool:
+```yaml
 - name: install valint
   uses: scribe-security/action-installer@master
 
@@ -644,5 +651,11 @@ Install valint as a tool
 </details>
 
 ### .gitignore
-Recommended to add output directory value to your .gitignore file.
+It's recommended to add an output directory value to your .gitignore file.
 By default add `**/scribe` to your `.gitignore`.
+
+## Other Actions
+* [bom](action-bom), [source](https://github.com/scribe-security/action-bom)
+* [slsa](action-slsa), [source](https://github.com/scribe-security/action-slsa)
+* [verify](action-verify), [source](https://github.com/scribe-security/action-verify)
+* [installer](action-installer), [source](https://github.com/scribe-security/action-installer)
