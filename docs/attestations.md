@@ -4,7 +4,7 @@ title: Attestations
 
 # Attestations
 Attestations represents authenticated metadata about a set of software artifacts (evidence). <br /> 
-scribe utilizes both attestations (signed) and statement (unsigned) to validate the integrity and policy compliance of your supply chain.
+Scribe utilizes both attestations (signed) and statement (unsigned) to validate the integrity and policy compliance of your supply chain. Scribe uses the **cocosign** library we developed to deal with digital signatures for signing and verification.
 
 ## Evidence 
 `cocosign` supports both signed and unsigned evidence.
@@ -12,7 +12,6 @@ scribe utilizes both attestations (signed) and statement (unsigned) to validate 
 * InToto attestation - signed evidence
 
 See details [In-toto spec](https://github.com/in-toto/attestation)
-
 
 ## Default configuration
 You can select from a set of prefilled default configuration.
@@ -106,7 +105,7 @@ verifier:
 
 
 ## Custom configuration
-Edit your main configuration, add the following subsection. \
+Edit your main configuration, add the following subsection. <br />
 For full configuration details see [configuration-format](#configuration-format).
 
 Usage:
@@ -131,7 +130,7 @@ attest:
 
 ### **KMS**
 Sigstore based KMS signer allows users to sign via kms.
-[doc](https://github.com/sigstore/cosign/blob/main/KMS.md) for Ref details.
+[doc](https://docs.sigstore.dev/cosign/kms_support/) for Ref details.
     - Support `KMSREF` environment variable (when configuration field is empty).
     - Support static ref set by configuration or env.
     - Support in-band ref verification flow by using the `REF` signature option.
@@ -141,8 +140,8 @@ Sigstore based fulcio signer allows users to sign InToto statement using fulcio 
 
 Simply put you can utilize a OIDC connection to gain a short living certificate signed to your identity.
 
-[keyless](https://github.com/sigstore/cosign/blob/main/KEYLESS.md)
-[fulcio_doc](https://github.com/sigstore/fulcio)
+[keyless](https://docs.sigstore.dev/cosign/openid_signing/)
+[fulcio_doc](https://github.com/sigstore/fulcio.md)
 
 #### Support
 - Interactive - User must authorize the signature via browser, device or security code url.
