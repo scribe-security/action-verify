@@ -17,12 +17,16 @@ inputs:
     description: Attestation for target
   common-name:
     description: Default policy allowed common names
+  push:
+    description: Push policy result evidence
   email:
     description: Default policy allowed emails
   force:
     description: Force skip cache
+  format:
+    description: Evidence output Format 
   input-format:
-    description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic]
+    description: Evidence input format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic]
   uri:
     description: Default policy allowed uris
   app-name:
@@ -116,15 +120,17 @@ inputs:
     description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:v0.4.2
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:demo
   args:
     - verify
     - ${{ inputs.type }}${{ inputs.type && ':' }}${{ inputs.target }}
     - ${{ inputs.scribe-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-audience }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
     - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
+    - ${{ inputs.push && '--push=' }}${{ inputs.push }}
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
     - ${{ inputs.force && '--force=' }}${{ inputs.force }}
+    - ${{ inputs.format && '--format=' }}${{ inputs.format }}
     - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
     - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
     - ${{ inputs.allow-expired && '--allow-expired=' }}${{ inputs.allow-expired }}
