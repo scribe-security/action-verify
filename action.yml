@@ -29,6 +29,12 @@ inputs:
     description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic]
   uri:
     description: Default policy allowed uris
+  app-name:
+    description: Logical application name
+    deprecationMessage: Flag is no longer supported
+  app-version:
+    description: Logical application version
+    deprecationMessage: Flag is no longer supported
   allow-expired:
     description: Allow expired certs
   attest-config:
