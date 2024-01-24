@@ -27,6 +27,8 @@ inputs:
     description: Force skip cache
   input-format:
     description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic]
+  skip-report:
+    description: Skip Policy report stage
   uri:
     description: Default policy allowed uris
   allow-expired:
@@ -130,6 +132,7 @@ runs:
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
     - ${{ inputs.force && '--force=' }}${{ inputs.force }}
     - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
+    - ${{ inputs.skip-report && '--skip-report=' }}${{ inputs.skip-report }}
     - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
     - ${{ inputs.allow-expired && '--allow-expired=' }}${{ inputs.allow-expired }}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
