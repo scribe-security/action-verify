@@ -7,7 +7,7 @@ outputs:
     value: ""
 inputs:
   target:
-    description: Target object name format=[<image:tag>, <dir path>, <git url>]
+    description: Target object name format=[<image:tag>, <dir path>, <git url>] (Optional)
     required: true
   type:
     description: Target source type scheme=[docker,docker-archive, oci-archive, dir, registry, git, generic]
@@ -19,6 +19,8 @@ inputs:
     required: false
   attestation:
     description: Attestation for target
+  bundle:
+    description: Policy bundle uri/path (early-availability)
   common-name:
     description: Default policy allowed common names
   email:
@@ -27,6 +29,10 @@ inputs:
     description: Force skip cache
   input-format:
     description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic]
+  rule:
+    description: Rule configuration file path (early-availability)
+  skip-bundle:
+    description: Skip bundle download
   skip-report:
     description: Skip Policy report stage
   uri:
@@ -60,7 +66,7 @@ inputs:
   disable-crl:
     description: Disable certificate revocation verificatoin
   env:
-    description: Environment keys to include in sbom
+    description: Environment keys to include in evidence
   filter-regex:
     description: Filter out files by regex
   filter-scope:
@@ -94,14 +100,14 @@ inputs:
     description: Pipeline name
   platform:
     description: Select target platform, examples=windows/armv6, arm64 ..)
-  policy-args:
-    description: Policy arguments
   predicate-type:
     description: Custom Predicate type (generic evidence format)
   product-key:
     description: Product Key
   product-version:
     description: Product Version
+  rule-args:
+    description: Policy arguments
   scribe-auth-audience:
     description: Scribe auth audience
   scribe-client-id:
@@ -128,10 +134,13 @@ runs:
     - ${{ inputs.type }}${{ inputs.type && ':' }}${{ inputs.target }}
     - ${{ inputs.scribe-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-audience }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
+    - ${{ inputs.bundle && '--bundle=' }}${{ inputs.bundle }}
     - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
     - ${{ inputs.force && '--force=' }}${{ inputs.force }}
     - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
+    - ${{ inputs.rule && '--rule=' }}${{ inputs.rule }}
+    - ${{ inputs.skip-bundle && '--skip-bundle=' }}${{ inputs.skip-bundle }}
     - ${{ inputs.skip-report && '--skip-report=' }}${{ inputs.skip-report }}
     - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
     - ${{ inputs.allow-expired && '--allow-expired=' }}${{ inputs.allow-expired }}
@@ -166,10 +175,10 @@ runs:
     - ${{ inputs.output-file && '--output-file=' }}${{ inputs.output-file }}
     - ${{ inputs.pipeline-name && '--pipeline-name=' }}${{ inputs.pipeline-name }}
     - ${{ inputs.platform && '--platform=' }}${{ inputs.platform }}
-    - ${{ inputs.policy-args && '--policy-args=' }}${{ inputs.policy-args }}
     - ${{ inputs.predicate-type && '--predicate-type=' }}${{ inputs.predicate-type }}
     - ${{ inputs.product-key && '--product-key=' }}${{ inputs.product-key }}
     - ${{ inputs.product-version && '--product-version=' }}${{ inputs.product-version }}
+    - ${{ inputs.rule-args && '--rule-args=' }}${{ inputs.rule-args }}
     - ${{ inputs.scribe-auth-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-auth-audience }}
     - ${{ inputs.scribe-client-id && '--scribe.client-id=' }}${{ inputs.scribe-client-id }}
     - ${{ inputs.scribe-client-secret && '--scribe.client-secret=' }}${{ inputs.scribe-client-secret }}
