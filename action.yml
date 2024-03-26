@@ -27,10 +27,16 @@ inputs:
     description: Default policy allowed emails
   force:
     description: Force skip cache
+  initiative:
+    description: Run only rules with specified initiative
   input-format:
     description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic ]
+  policy:
+    description: Policy configuration file path (early-availability)
   rule:
     description: Rule configuration file path (early-availability)
+  rule-label:
+    description: Run only rules with specified label
   skip-bundle:
     description: Skip bundle download
   skip-report:
@@ -142,8 +148,11 @@ runs:
     - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
     - ${{ inputs.force && '--force=' }}${{ inputs.force }}
+    - ${{ inputs.initiative && '--initiative=' }}${{ inputs.initiative }}
     - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
+    - ${{ inputs.policy && '--policy=' }}${{ inputs.policy }}
     - ${{ inputs.rule && '--rule=' }}${{ inputs.rule }}
+    - ${{ inputs.rule-label && '--rule-label=' }}${{ inputs.rule-label }}
     - ${{ inputs.skip-bundle && '--skip-bundle=' }}${{ inputs.skip-bundle }}
     - ${{ inputs.skip-report && '--skip-report=' }}${{ inputs.skip-report }}
     - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
