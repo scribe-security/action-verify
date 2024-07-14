@@ -17,68 +17,32 @@ inputs:
     description: Scribe auth audience
     deprecationMessage: Please use scribe-auth-audience instead
     required: false
-  attestation:
-    description: Attestation for target
-  bundle:
-    description: Policy bundle uri/path (early-availability)
-  common-name:
-    description: Default policy allowed common names
-  email:
-    description: Default policy allowed emails
-  force:
-    description: Force skip cache
-  initiative:
-    description: Run only rules with specified initiative
-  input-format:
-    description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic ]
-  policy:
-    description: Policy configuration file path (early-availability)
-  rule:
-    description: Rule configuration file path (early-availability)
-  rule-label:
-    description: Run only rules with specified label
-  skip-bundle:
-    description: Skip bundle download
-  skip-report:
-    description: Skip Policy report stage
-  uri:
-    description: Default policy allowed uris
-  allow-expired:
-    description: Allow expired certs
   attest-config:
     description: Attestation config path
   attest-default:
     description: Attestation default config, options=[sigstore sigstore-github x509 x509-env]
-  backoff:
-    description: Backoff duration
+  attestation:
+    description: Attestation for target
+  bundle:
+    description: Policy bundle uri/path (early-availability)
   ca:
     description: x509 CA Chain path
-  cache-enable:
-    description: Enable local cache
   cert:
     description: x509 Cert path
-  config:
-    description: Configuration file path
-  context-dir:
-    description: Context dir
+  common-name:
+    description: Default policy allowed common names
   crl:
     description: x509 CRL path
   crl-full-chain:
     description: Enable Full chain CRL verfication
-  deliverable:
-    description: Mark as deliverable, options=[true, false]
   depth:
     description: Git clone depth
   disable-crl:
     description: Disable certificate revocation verificatoin
-  env:
-    description: Environment keys to include in evidence
-  filter-regex:
-    description: Filter out files by regex
-  filter-scope:
-    description: Filter packages by scope
-  gate:
-    description: Policy Gate name
+  email:
+    description: Default policy allowed emails
+  force:
+    description: Force skip cache
   git-auth:
     description: 'Git repository authentication info, [format: ''username:password'']'
   git-branch:
@@ -87,8 +51,42 @@ inputs:
     description: Git commit hash in the repository
   git-tag:
     description: Git tag in the repository
+  initiative:
+    description: Run only rules with specified initiative
+  input-format:
+    description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic ]
   key:
     description: x509 Private key path
+  oci:
+    description: Enable OCI store
+  oci-repo:
+    description: Select OCI custom attestation repo
+  platform:
+    description: Select target platform, examples=windows/armv6, arm64 ..)
+  policy:
+    description: Policy configuration file path (early-availability)
+  rule:
+    description: Rule configuration file path (early-availability)
+  rule-args:
+    description: Policy arguments
+  rule-label:
+    description: Run only rules with specified label
+  skip-bundle:
+    description: Skip bundle download
+  skip-report:
+    description: Skip Policy report stage
+  uri:
+    description: Default policy allowed uris
+  cache-enable:
+    description: Enable local cache
+  config:
+    description: Configuration file path
+  deliverable:
+    description: Mark as deliverable, options=[true, false]
+  env:
+    description: Environment keys to include in evidence
+  gate:
+    description: Policy Gate name
   label:
     description: Add Custom labels
   level:
@@ -97,10 +95,6 @@ inputs:
     description: Attach context to all logs
   log-file:
     description: Output log to file
-  oci:
-    description: Enable OCI store
-  oci-repo:
-    description: Select OCI custom attestation repo
   output-directory:
     description: Output directory path
     default: ./scribe/valint
@@ -108,26 +102,20 @@ inputs:
     description: Output file name
   pipeline-name:
     description: Pipeline name
-  platform:
-    description: Select target platform, examples=windows/armv6, arm64 ..)
   predicate-type:
     description: Custom Predicate type (generic evidence format)
   product-key:
     description: Product Key
   product-version:
     description: Product Version
-  rule-args:
-    description: Policy arguments
-  scribe-auth-audience:
-    description: Scribe auth audience (deprecated)
   scribe-client-id:
     description: Scribe Client ID (deprecated)
   scribe-client-secret:
     description: Scribe Client Token
+  scribe-disable:
+    description: Disable scribe client
   scribe-enable:
-    description: Enable scribe client
-  scribe-login-url:
-    description: Scribe login url (deprecated)
+    description: Enable scribe client (deprecated)
   scribe-url:
     description: Scribe API Url
   structured:
@@ -143,62 +131,56 @@ runs:
     - verify
     - ${{ inputs.type }}${{ inputs.type && ':' }}${{ inputs.target }}
     - ${{ inputs.scribe-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-audience }}
-    - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
-    - ${{ inputs.bundle && '--bundle=' }}${{ inputs.bundle }}
-    - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
-    - ${{ inputs.email && '--email=' }}${{ inputs.email }}
-    - ${{ inputs.force && '--force=' }}${{ inputs.force }}
-    - ${{ inputs.initiative && '--initiative=' }}${{ inputs.initiative }}
-    - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
-    - ${{ inputs.policy && '--policy=' }}${{ inputs.policy }}
-    - ${{ inputs.rule && '--rule=' }}${{ inputs.rule }}
-    - ${{ inputs.rule-label && '--rule-label=' }}${{ inputs.rule-label }}
-    - ${{ inputs.skip-bundle && '--skip-bundle=' }}${{ inputs.skip-bundle }}
-    - ${{ inputs.skip-report && '--skip-report=' }}${{ inputs.skip-report }}
-    - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
-    - ${{ inputs.allow-expired && '--allow-expired=' }}${{ inputs.allow-expired }}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
-    - ${{ inputs.backoff && '--backoff=' }}${{ inputs.backoff }}
+    - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
+    - ${{ inputs.bundle && '--bundle=' }}${{ inputs.bundle }}
     - ${{ inputs.ca && '--ca=' }}${{ inputs.ca }}
-    - ${{ inputs.cache-enable && '--cache-enable=' }}${{ inputs.cache-enable }}
     - ${{ inputs.cert && '--cert=' }}${{ inputs.cert }}
-    - ${{ inputs.config && '--config=' }}${{ inputs.config }}
-    - ${{ inputs.context-dir && '--context-dir=' }}${{ inputs.context-dir }}
-    - --context-type=github
+    - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
     - ${{ inputs.crl && '--crl=' }}${{ inputs.crl }}
     - ${{ inputs.crl-full-chain && '--crl-full-chain=' }}${{ inputs.crl-full-chain }}
-    - ${{ inputs.deliverable && '--deliverable=' }}${{ inputs.deliverable }}
     - ${{ inputs.depth && '--depth=' }}${{ inputs.depth }}
     - ${{ inputs.disable-crl && '--disable-crl=' }}${{ inputs.disable-crl }}
-    - ${{ inputs.env && '--env=' }}${{ inputs.env }}
-    - ${{ inputs.filter-regex && '--filter-regex=' }}${{ inputs.filter-regex }}
-    - ${{ inputs.filter-scope && '--filter-scope=' }}${{ inputs.filter-scope }}
-    - ${{ inputs.gate && '--gate=' }}${{ inputs.gate }}
+    - ${{ inputs.email && '--email=' }}${{ inputs.email }}
+    - ${{ inputs.force && '--force=' }}${{ inputs.force }}
     - ${{ inputs.git-auth && '--git-auth=' }}${{ inputs.git-auth }}
     - ${{ inputs.git-branch && '--git-branch=' }}${{ inputs.git-branch }}
     - ${{ inputs.git-commit && '--git-commit=' }}${{ inputs.git-commit }}
     - ${{ inputs.git-tag && '--git-tag=' }}${{ inputs.git-tag }}
+    - ${{ inputs.initiative && '--initiative=' }}${{ inputs.initiative }}
+    - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
     - ${{ inputs.key && '--key=' }}${{ inputs.key }}
+    - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
+    - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
+    - ${{ inputs.platform && '--platform=' }}${{ inputs.platform }}
+    - ${{ inputs.policy && '--policy=' }}${{ inputs.policy }}
+    - ${{ inputs.rule && '--rule=' }}${{ inputs.rule }}
+    - ${{ inputs.rule-args && '--rule-args=' }}${{ inputs.rule-args }}
+    - ${{ inputs.rule-label && '--rule-label=' }}${{ inputs.rule-label }}
+    - ${{ inputs.skip-bundle && '--skip-bundle=' }}${{ inputs.skip-bundle }}
+    - ${{ inputs.skip-report && '--skip-report=' }}${{ inputs.skip-report }}
+    - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
+    - ${{ inputs.cache-enable && '--cache-enable=' }}${{ inputs.cache-enable }}
+    - ${{ inputs.config && '--config=' }}${{ inputs.config }}
+    - --context-type=github
+    - ${{ inputs.deliverable && '--deliverable=' }}${{ inputs.deliverable }}
+    - ${{ inputs.env && '--env=' }}${{ inputs.env }}
+    - ${{ inputs.gate && '--gate=' }}${{ inputs.gate }}
     - ${{ inputs.label && '--label=' }}${{ inputs.label }}
     - ${{ inputs.level && '--level=' }}${{ inputs.level }}
     - ${{ inputs.log-context && '--log-context=' }}${{ inputs.log-context }}
     - ${{ inputs.log-file && '--log-file=' }}${{ inputs.log-file }}
-    - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
-    - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
     - ${{ inputs.output-directory && '--output-directory=' }}${{ inputs.output-directory }}
     - ${{ inputs.output-file && '--output-file=' }}${{ inputs.output-file }}
     - ${{ inputs.pipeline-name && '--pipeline-name=' }}${{ inputs.pipeline-name }}
-    - ${{ inputs.platform && '--platform=' }}${{ inputs.platform }}
     - ${{ inputs.predicate-type && '--predicate-type=' }}${{ inputs.predicate-type }}
     - ${{ inputs.product-key && '--product-key=' }}${{ inputs.product-key }}
     - ${{ inputs.product-version && '--product-version=' }}${{ inputs.product-version }}
-    - ${{ inputs.rule-args && '--rule-args=' }}${{ inputs.rule-args }}
-    - ${{ inputs.scribe-auth-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-auth-audience }}
     - ${{ inputs.scribe-client-id && '--scribe.client-id=' }}${{ inputs.scribe-client-id }}
     - ${{ inputs.scribe-client-secret && '--scribe.client-secret=' }}${{ inputs.scribe-client-secret }}
+    - ${{ inputs.scribe-disable && '--scribe.disable=' }}${{ inputs.scribe-disable }}
     - ${{ inputs.scribe-enable && '--scribe.enable=' }}${{ inputs.scribe-enable }}
-    - ${{ inputs.scribe-login-url && '--scribe.login-url=' }}${{ inputs.scribe-login-url }}
     - ${{ inputs.scribe-url && '--scribe.url=' }}${{ inputs.scribe-url }}
     - ${{ inputs.structured && '--structured=' }}${{ inputs.structured }}
     - ${{ inputs.timeout && '--timeout=' }}${{ inputs.timeout }}
