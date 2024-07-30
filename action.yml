@@ -9,14 +9,6 @@ inputs:
   target:
     description: Target object name format=[<image:tag>, <dir path>, <git url>] (Optional)
     required: true
-  type:
-    description: Target source type scheme=[docker,docker-archive, oci-archive, dir, registry, git, generic]
-    deprecationMessage: Please use target fields, formated [type]:[target]:[tag]
-    required: false
-  scribe-audience:
-    description: Scribe auth audience
-    deprecationMessage: Please use scribe-auth-audience instead
-    required: false
   attest-config:
     description: Attestation config path
   attest-default:
@@ -25,6 +17,16 @@ inputs:
     description: Attestation for target
   bundle:
     description: Policy bundle uri/path (early-availability)
+  bundle-auth:
+    description: 'Bundle repository authentication info, [format: ''username:password'']'
+  bundle-branch:
+    description: Bundle branch in the repository
+  bundle-commit:
+    description: Bundle commit hash in the repository
+  bundle-depth:
+    description: Bundle clone depth
+  bundle-tag:
+    description: Bundle tag in the repository
   ca:
     description: x509 CA Chain path
   cert:
@@ -129,12 +131,16 @@ runs:
   image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:dev-latest
   args:
     - verify
-    - ${{ inputs.type }}${{ inputs.type && ':' }}${{ inputs.target }}
-    - ${{ inputs.scribe-audience && '--scribe.auth.audience=' }}${{ inputs.scribe-audience }}
+    - ${{ inputs.target}}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
     - ${{ inputs.bundle && '--bundle=' }}${{ inputs.bundle }}
+    - ${{ inputs.bundle-auth && '--bundle-auth=' }}${{ inputs.bundle-auth }}
+    - ${{ inputs.bundle-branch && '--bundle-branch=' }}${{ inputs.bundle-branch }}
+    - ${{ inputs.bundle-commit && '--bundle-commit=' }}${{ inputs.bundle-commit }}
+    - ${{ inputs.bundle-depth && '--bundle-depth=' }}${{ inputs.bundle-depth }}
+    - ${{ inputs.bundle-tag && '--bundle-tag=' }}${{ inputs.bundle-tag }}
     - ${{ inputs.ca && '--ca=' }}${{ inputs.ca }}
     - ${{ inputs.cert && '--cert=' }}${{ inputs.cert }}
     - ${{ inputs.common-name && '--common-name=' }}${{ inputs.common-name }}
