@@ -12,7 +12,7 @@ inputs:
   attest-config:
     description: Attestation config path
   attest-default:
-    description: Attestation default config, options=[sigstore sigstore-github x509 x509-env]
+    description: Attestation default config, options=[sigstore sigstore-github x509 x509-env kms pubkey]
   attestation:
     description: Attestation for target
   bundle:
@@ -59,6 +59,8 @@ inputs:
     description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic ]
   key:
     description: x509 Private key path
+  kms:
+    description: Provide KMS key reference
   oci:
     description: Enable OCI store
   oci-repo:
@@ -67,6 +69,12 @@ inputs:
     description: Select target platform, examples=windows/armv6, arm64 ..)
   policy:
     description: Policy configuration file path (early-availability)
+  provenance:
+    description: Create target SLSA Provenance evidence
+  pubkey:
+    description: Public key path
+  public-key:
+    description: Public key path
   rule:
     description: Rule configuration file path (early-availability)
   rule-args:
@@ -157,10 +165,14 @@ runs:
     - ${{ inputs.initiative && '--initiative=' }}${{ inputs.initiative }}
     - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
     - ${{ inputs.key && '--key=' }}${{ inputs.key }}
+    - ${{ inputs.kms && '--kms=' }}${{ inputs.kms }}
     - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
     - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
     - ${{ inputs.platform && '--platform=' }}${{ inputs.platform }}
     - ${{ inputs.policy && '--policy=' }}${{ inputs.policy }}
+    - ${{ inputs.provenance && '--provenance=' }}${{ inputs.provenance }}
+    - ${{ inputs.pubkey && '--pubkey=' }}${{ inputs.pubkey }}
+    - ${{ inputs.public-key && '--public-key=' }}${{ inputs.public-key }}
     - ${{ inputs.rule && '--rule=' }}${{ inputs.rule }}
     - ${{ inputs.rule-args && '--rule-args=' }}${{ inputs.rule-args }}
     - ${{ inputs.rule-label && '--rule-label=' }}${{ inputs.rule-label }}
