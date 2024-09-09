@@ -15,6 +15,8 @@ inputs:
     description: Attestation default config, options=[sigstore sigstore-github x509 x509-env kms pubkey]
   attestation:
     description: Attestation for target
+  bom:
+    description: Create target SBOM evidence
   bundle:
     description: Policy bundle uri/path (early-availability)
   bundle-auth:
@@ -65,6 +67,8 @@ inputs:
     description: Enable OCI store
   oci-repo:
     description: Select OCI custom attestation repo
+  pass:
+    description: Private key password
   platform:
     description: Select target platform, examples=windows/armv6, arm64 ..)
   policy:
@@ -136,13 +140,14 @@ inputs:
     description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:v1.5.6
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:v1.5.7
   args:
     - verify
     - ${{ inputs.target }}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
+    - ${{ inputs.bom && '--bom=' }}${{ inputs.bom }}
     - ${{ inputs.bundle && '--bundle=' }}${{ inputs.bundle }}
     - ${{ inputs.bundle-auth && '--bundle-auth=' }}${{ inputs.bundle-auth }}
     - ${{ inputs.bundle-branch && '--bundle-branch=' }}${{ inputs.bundle-branch }}
@@ -168,6 +173,7 @@ runs:
     - ${{ inputs.kms && '--kms=' }}${{ inputs.kms }}
     - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
     - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
+    - ${{ inputs.pass && '--pass=' }}${{ inputs.pass }}
     - ${{ inputs.platform && '--platform=' }}${{ inputs.platform }}
     - ${{ inputs.policy && '--policy=' }}${{ inputs.policy }}
     - ${{ inputs.provenance && '--provenance=' }}${{ inputs.provenance }}
