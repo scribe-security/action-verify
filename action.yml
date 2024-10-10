@@ -48,7 +48,7 @@ inputs:
   force:
     description: Force skip cache
   format:
-    description: Evidence format, options=[statement-sarif attest-sarif sarif ]
+    description: Policy Result Evidence format, options=[statement-sarif attest-sarif sarif ]
   git-auth:
     description: 'Git repository authentication info, [format: ''username:password'']'
   git-branch:
@@ -60,7 +60,7 @@ inputs:
   initiative:
     description: Run only rules with specified initiative
   input-format:
-    description: Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic ]
+    description: Input Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic ]
   key:
     description: x509 Private key path
   kms:
