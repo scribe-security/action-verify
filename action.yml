@@ -47,6 +47,8 @@ inputs:
     description: Default policy allowed emails
   force:
     description: Force skip cache
+  format:
+    description: Evidence format, options=[statement-sarif attest-sarif sarif ]
   git-auth:
     description: 'Git repository authentication info, [format: ''username:password'']'
   git-branch:
@@ -163,6 +165,7 @@ runs:
     - ${{ inputs.disable-crl && '--disable-crl=' }}${{ inputs.disable-crl }}
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
     - ${{ inputs.force && '--force=' }}${{ inputs.force }}
+    - ${{ inputs.format && '--format=' }}${{ inputs.format }}
     - ${{ inputs.git-auth && '--git-auth=' }}${{ inputs.git-auth }}
     - ${{ inputs.git-branch && '--git-branch=' }}${{ inputs.git-branch }}
     - ${{ inputs.git-commit && '--git-commit=' }}${{ inputs.git-commit }}
