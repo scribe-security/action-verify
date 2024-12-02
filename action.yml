@@ -71,6 +71,8 @@ inputs:
     description: Select OCI custom attestation repo
   pass:
     description: Private key password
+  payload:
+    description: path of the decoded payload
   platform:
     description: Select target platform, examples=windows/armv6, arm64 ..)
   policy:
@@ -177,6 +179,7 @@ runs:
     - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
     - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
     - ${{ inputs.pass && '--pass=' }}${{ inputs.pass }}
+    - ${{ inputs.payload && '--payload=' }}${{ inputs.payload }}
     - ${{ inputs.platform && '--platform=' }}${{ inputs.platform }}
     - ${{ inputs.policy && '--policy=' }}${{ inputs.policy }}
     - ${{ inputs.provenance && '--provenance=' }}${{ inputs.provenance }}
