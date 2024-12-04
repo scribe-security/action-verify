@@ -71,6 +71,8 @@ inputs:
     description: Select OCI custom attestation repo
   pass:
     description: Private key password
+  payload:
+    description: path of the decoded payload
   platform:
     description: Select target platform, examples=windows/armv6, arm64 ..)
   policy:
@@ -142,7 +144,7 @@ inputs:
     description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:v1.5.12
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:v1.5.14
   args:
     - verify
     - ${{ inputs.target }}
@@ -177,6 +179,7 @@ runs:
     - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
     - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
     - ${{ inputs.pass && '--pass=' }}${{ inputs.pass }}
+    - ${{ inputs.payload && '--payload=' }}${{ inputs.payload }}
     - ${{ inputs.platform && '--platform=' }}${{ inputs.platform }}
     - ${{ inputs.policy && '--policy=' }}${{ inputs.policy }}
     - ${{ inputs.provenance && '--provenance=' }}${{ inputs.provenance }}
