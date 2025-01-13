@@ -15,6 +15,8 @@ inputs:
     description: Attestation default config, options=[sigstore sigstore-github x509 x509-env kms pubkey]
   attestation:
     description: Attestation for target
+  base-image:
+    description: Base image for the target
   bom:
     description: Create target SBOM evidence
   bundle:
@@ -105,6 +107,8 @@ inputs:
     description: Environment keys to include in evidence
   gate:
     description: Policy Gate name
+  input:
+    description: Input Evidence target, format (<parser>:<file> or <scheme>:<name>:<tag>)
   label:
     description: Add Custom labels
   level:
@@ -144,13 +148,14 @@ inputs:
     description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
 runs:
   using: docker
-  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:v1.5.14
+  image: docker://scribesecuriy.jfrog.io/scribe-docker-public-local/valint:v1.5.15
   args:
     - verify
     - ${{ inputs.target }}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
+    - ${{ inputs.base-image && '--base-image=' }}${{ inputs.base-image }}
     - ${{ inputs.bom && '--bom=' }}${{ inputs.bom }}
     - ${{ inputs.bundle && '--bundle=' }}${{ inputs.bundle }}
     - ${{ inputs.bundle-auth && '--bundle-auth=' }}${{ inputs.bundle-auth }}
@@ -197,6 +202,7 @@ runs:
     - ${{ inputs.deliverable && '--deliverable=' }}${{ inputs.deliverable }}
     - ${{ inputs.env && '--env=' }}${{ inputs.env }}
     - ${{ inputs.gate && '--gate=' }}${{ inputs.gate }}
+    - ${{ inputs.input && '--input=' }}${{ inputs.input }}
     - ${{ inputs.label && '--label=' }}${{ inputs.label }}
     - ${{ inputs.level && '--level=' }}${{ inputs.level }}
     - ${{ inputs.log-context && '--log-context=' }}${{ inputs.log-context }}
