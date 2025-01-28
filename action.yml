@@ -93,6 +93,8 @@ inputs:
     description: Run only rules with specified label
   skip-bundle:
     description: Skip bundle download
+  skip-confirmation:
+    description: Skip Sigstore Confirmation
   skip-report:
     description: Skip Policy report stage
   uri:
@@ -194,6 +196,7 @@ runs:
     - ${{ inputs.rule-args && '--rule-args=' }}${{ inputs.rule-args }}
     - ${{ inputs.rule-label && '--rule-label=' }}${{ inputs.rule-label }}
     - ${{ inputs.skip-bundle && '--skip-bundle=' }}${{ inputs.skip-bundle }}
+    - ${{ inputs.skip-confirmation && '--skip-confirmation=' }}${{ inputs.skip-confirmation }}
     - ${{ inputs.skip-report && '--skip-report=' }}${{ inputs.skip-report }}
     - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
     - ${{ inputs.cache-enable && '--cache-enable=' }}${{ inputs.cache-enable }}
