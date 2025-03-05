@@ -11,6 +11,8 @@ inputs:
     required: true
   all-evidence:
     description: Run all evidence verification
+  allow-unicode:
+    description: Allow unicode characters in the output
   attest-config:
     description: Attestation config path
   attest-default:
@@ -116,7 +118,7 @@ inputs:
   gate-type:
     description: Policy Gate type
   input:
-    description: Input Evidence target, format (<parser>:<file> or <scheme>:<name>:<tag>)
+    description: Input Evidence target, format (\<parser>:\<file> or \<scheme>:\<name>:\<tag>)
   label:
     description: Add Custom labels
   level:
@@ -161,6 +163,7 @@ runs:
     - verify
     - ${{ inputs.target }}
     - ${{ inputs.all-evidence && '--all-evidence=' }}${{ inputs.all-evidence }}
+    - ${{ inputs.allow-unicode && '--allow-unicode=' }}${{ inputs.allow-unicode }}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
