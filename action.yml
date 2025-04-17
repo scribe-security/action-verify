@@ -11,8 +11,6 @@ inputs:
     required: true
   all-evidence:
     description: Run all evidence verification
-  allow-unicode:
-    description: Allow unicode characters in the output
   attest-config:
     description: Attestation config path
   attest-default:
@@ -21,6 +19,8 @@ inputs:
     description: Attestation for target
   base-image:
     description: Base image for the target
+  beautify:
+    description: Enhance the output using ANSI and Unicode characters
   bom:
     description: Create target SBOM evidence
   bundle:
@@ -75,6 +75,8 @@ inputs:
     description: x509 Private key path
   kms:
     description: Provide KMS key reference
+  md:
+    description: Output Initiative result markdown report file
   oci:
     description: Enable OCI store
   oci-repo:
@@ -158,16 +160,16 @@ inputs:
     description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
 runs:
   using: docker
-  image: docker://scribesecurity/valint:sh-5802_initiatives_config
+  image: docker://scribesecurity/valint:dev-latest
   args:
     - verify
     - ${{ inputs.target }}
     - ${{ inputs.all-evidence && '--all-evidence=' }}${{ inputs.all-evidence }}
-    - ${{ inputs.allow-unicode && '--allow-unicode=' }}${{ inputs.allow-unicode }}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
     - ${{ inputs.base-image && '--base-image=' }}${{ inputs.base-image }}
+    - ${{ inputs.beautify && '--beautify=' }}${{ inputs.beautify }}
     - ${{ inputs.bom && '--bom=' }}${{ inputs.bom }}
     - ${{ inputs.bundle && '--bundle=' }}${{ inputs.bundle }}
     - ${{ inputs.bundle-auth && '--bundle-auth=' }}${{ inputs.bundle-auth }}
@@ -195,6 +197,7 @@ runs:
     - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
     - ${{ inputs.key && '--key=' }}${{ inputs.key }}
     - ${{ inputs.kms && '--kms=' }}${{ inputs.kms }}
+    - ${{ inputs.md && '--md=' }}${{ inputs.md }}
     - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
     - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
     - ${{ inputs.pass && '--pass=' }}${{ inputs.pass }}
