@@ -9,6 +9,8 @@ inputs:
   target:
     description: Target object name format=[<image:tag>, <dir path>, <git url>] (Optional)
     required: true
+  all-evidence:
+    description: Run all evidence verification
   attest-config:
     description: Attestation config path
   attest-default:
@@ -17,6 +19,8 @@ inputs:
     description: Attestation for target
   base-image:
     description: Base image for the target
+  beautify:
+    description: Enhance the output using ANSI and Unicode characters
   bom:
     description: Create target SBOM evidence
   bundle:
@@ -60,13 +64,19 @@ inputs:
   git-tag:
     description: Git tag in the repository
   initiative:
-    description: Run only rules with specified initiative
+    description: Initiative configuration file path (early-availability)
+  initiative-id:
+    description: Initiative id
+  initiative-name:
+    description: Initiative name
   input-format:
     description: Input Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic ]
   key:
     description: x509 Private key path
   kms:
     description: Provide KMS key reference
+  md:
+    description: Output Initiative result markdown report file
   oci:
     description: Enable OCI store
   oci-repo:
@@ -77,8 +87,6 @@ inputs:
     description: path of the decoded payload
   platform:
     description: Select target platform, examples=windows/armv6, arm64 ..)
-  policy:
-    description: Policy configuration file path (early-availability)
   provenance:
     description: Create target SLSA Provenance evidence
   pubkey:
@@ -107,8 +115,10 @@ inputs:
     description: Mark as deliverable, options=[true, false]
   env:
     description: Environment keys to include in evidence
-  gate:
+  gate-name:
     description: Policy Gate name
+  gate-type:
+    description: Policy Gate type
   input:
     description: Input Evidence target, format (\<parser>:\<file> or \<scheme>:\<name>:\<tag>)
   label:
@@ -154,10 +164,12 @@ runs:
   args:
     - verify
     - ${{ inputs.target }}
+    - ${{ inputs.all-evidence && '--all-evidence=' }}${{ inputs.all-evidence }}
     - ${{ inputs.attest-config && '--attest.config=' }}${{ inputs.attest-config }}
     - ${{ inputs.attest-default && '--attest.default=' }}${{ inputs.attest-default }}
     - ${{ inputs.attestation && '--attestation=' }}${{ inputs.attestation }}
     - ${{ inputs.base-image && '--base-image=' }}${{ inputs.base-image }}
+    - ${{ inputs.beautify && '--beautify=' }}${{ inputs.beautify }}
     - ${{ inputs.bom && '--bom=' }}${{ inputs.bom }}
     - ${{ inputs.bundle && '--bundle=' }}${{ inputs.bundle }}
     - ${{ inputs.bundle-auth && '--bundle-auth=' }}${{ inputs.bundle-auth }}
@@ -180,15 +192,17 @@ runs:
     - ${{ inputs.git-commit && '--git-commit=' }}${{ inputs.git-commit }}
     - ${{ inputs.git-tag && '--git-tag=' }}${{ inputs.git-tag }}
     - ${{ inputs.initiative && '--initiative=' }}${{ inputs.initiative }}
+    - ${{ inputs.initiative-id && '--initiative-id=' }}${{ inputs.initiative-id }}
+    - ${{ inputs.initiative-name && '--initiative-name=' }}${{ inputs.initiative-name }}
     - ${{ inputs.input-format && '--input-format=' }}${{ inputs.input-format }}
     - ${{ inputs.key && '--key=' }}${{ inputs.key }}
     - ${{ inputs.kms && '--kms=' }}${{ inputs.kms }}
+    - ${{ inputs.md && '--md=' }}${{ inputs.md }}
     - ${{ inputs.oci && '--oci=' }}${{ inputs.oci }}
     - ${{ inputs.oci-repo && '--oci-repo=' }}${{ inputs.oci-repo }}
     - ${{ inputs.pass && '--pass=' }}${{ inputs.pass }}
     - ${{ inputs.payload && '--payload=' }}${{ inputs.payload }}
     - ${{ inputs.platform && '--platform=' }}${{ inputs.platform }}
-    - ${{ inputs.policy && '--policy=' }}${{ inputs.policy }}
     - ${{ inputs.provenance && '--provenance=' }}${{ inputs.provenance }}
     - ${{ inputs.pubkey && '--pubkey=' }}${{ inputs.pubkey }}
     - ${{ inputs.public-key && '--public-key=' }}${{ inputs.public-key }}
@@ -204,7 +218,8 @@ runs:
     - --context-type=github
     - ${{ inputs.deliverable && '--deliverable=' }}${{ inputs.deliverable }}
     - ${{ inputs.env && '--env=' }}${{ inputs.env }}
-    - ${{ inputs.gate && '--gate=' }}${{ inputs.gate }}
+    - ${{ inputs.gate-name && '--gate-name=' }}${{ inputs.gate-name }}
+    - ${{ inputs.gate-type && '--gate-type=' }}${{ inputs.gate-type }}
     - ${{ inputs.input && '--input=' }}${{ inputs.input }}
     - ${{ inputs.label && '--label=' }}${{ inputs.label }}
     - ${{ inputs.level && '--level=' }}${{ inputs.level }}
