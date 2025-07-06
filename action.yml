@@ -105,6 +105,14 @@ inputs:
     description: Skip Sigstore Confirmation
   skip-report:
     description: Skip Policy report stage
+  source:
+    description: SLSA Git repository source for target
+  source-asset-id:
+    description: Source asset id for SLSA Git repository source
+  source-asset-name:
+    description: Source asset name for SLSA Git repository source
+  source-asset-platform:
+    description: Source asset platform for SLSA Git repository source
   uri:
     description: Default policy allowed uris
   cache-enable:
@@ -212,6 +220,10 @@ runs:
     - ${{ inputs.skip-bundle && '--skip-bundle=' }}${{ inputs.skip-bundle }}
     - ${{ inputs.skip-confirmation && '--skip-confirmation=' }}${{ inputs.skip-confirmation }}
     - ${{ inputs.skip-report && '--skip-report=' }}${{ inputs.skip-report }}
+    - ${{ inputs.source && '--source=' }}${{ inputs.source }}
+    - ${{ inputs.source-asset-id && '--source-asset-id=' }}${{ inputs.source-asset-id }}
+    - ${{ inputs.source-asset-name && '--source-asset-name=' }}${{ inputs.source-asset-name }}
+    - ${{ inputs.source-asset-platform && '--source-asset-platform=' }}${{ inputs.source-asset-platform }}
     - ${{ inputs.uri && '--uri=' }}${{ inputs.uri }}
     - ${{ inputs.cache-enable && '--cache-enable=' }}${{ inputs.cache-enable }}
     - ${{ inputs.config && '--config=' }}${{ inputs.config }}
