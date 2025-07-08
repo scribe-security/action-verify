@@ -25,6 +25,8 @@ The command allows users to verify any target against its evidence.
   target:
     description: Target object name format=[<image:tag>, <dir path>, <git url>] (Optional)
     required: true
+  all-evidence:
+    description: Run all evidence verification
   attest-config:
     description: Attestation config path
   attest-default:
@@ -33,6 +35,8 @@ The command allows users to verify any target against its evidence.
     description: Attestation for target
   base-image:
     description: Base image for the target
+  beautify:
+    description: Enhance the output using ANSI and Unicode characters
   bom:
     description: Create target SBOM evidence
   bundle:
@@ -76,13 +80,19 @@ The command allows users to verify any target against its evidence.
   git-tag:
     description: Git tag in the repository
   initiative:
-    description: Run only rules with specified initiative
+    description: Initiative configuration file path (early-availability)
+  initiative-id:
+    description: Initiative id
+  initiative-name:
+    description: Initiative name
   input-format:
     description: Input Evidence format, options=[attest-cyclonedx-json attest-slsa statement-slsa statement-cyclonedx-json statement-generic attest-generic ]
   key:
     description: x509 Private key path
   kms:
     description: Provide KMS key reference
+  md:
+    description: Output Initiative result markdown report file
   oci:
     description: Enable OCI store
   oci-repo:
@@ -93,8 +103,6 @@ The command allows users to verify any target against its evidence.
     description: path of the decoded payload
   platform:
     description: Select target platform, examples=windows/armv6, arm64 ..)
-  policy:
-    description: Policy configuration file path (early-availability)
   provenance:
     description: Create target SLSA Provenance evidence
   pubkey:
@@ -109,6 +117,8 @@ The command allows users to verify any target against its evidence.
     description: Run only rules with specified label
   skip-bundle:
     description: Skip bundle download
+  skip-confirmation:
+    description: Skip Sigstore Confirmation
   skip-report:
     description: Skip Policy report stage
   uri:
@@ -121,8 +131,10 @@ The command allows users to verify any target against its evidence.
     description: Mark as deliverable, options=[true, false]
   env:
     description: Environment keys to include in evidence
-  gate:
+  gate-name:
     description: Policy Gate name
+  gate-type:
+    description: Policy Gate type
   input:
     description: Input Evidence target, format (\<parser>:\<file> or \<scheme>:\<name>:\<tag>)
   label:
@@ -162,6 +174,7 @@ The command allows users to verify any target against its evidence.
     description: Timeout duration
   verbose:
     description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
+
 ```
 
 ### Usage
@@ -169,7 +182,7 @@ Containerized action can be used on Linux runners as following
 ```yaml
 - name: valint verify
   id: valint_verify
-  uses: scribe-security/action-verify@v1.5.15
+  uses: scribe-security/action-verify@v2.0.1
   with:
       target: 'busybox:latest'
 ```
@@ -177,7 +190,7 @@ Containerized action can be used on Linux runners as following
 Composite Action can be used on Linux or Windows runners as following
 ```yaml
 - name: Generate cyclonedx json SBOM
-  uses: scribe-security/action-verify-cli@v1.5.15
+  uses: scribe-security/action-verify-cli@v2.0.1
   with:
     target: 'hello-world:latest'
 ```
@@ -229,6 +242,60 @@ jobs:
           input-format: [attest, statement, attest-slsa, statement-slsa, attest-generic, statement-generic]
           scribe-client-secret: ${{ secrets.SCRIBE_TOKEN }}
 ```
+
+#### Example: Enforcing SP 800-190 Controls with Valint Initiatives
+
+This workflow demonstrates how to leverage Valint’s initiative engine to automatically generate evidence (SBOM and vulnerability reports), submit it to Valint, and enforce SP 800-190 controls on your container image.
+
+```yaml
+name: sp-800-190-policy-check
+
+on:
+  pull_request:
+
+jobs:
+  image-policy-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          tags: |
+            ${{ github.sha }}
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        continue-on-error: true
+        with:
+          image-ref: ${{ github.sha }}
+          format: sarif
+          output: trivy-report.sarif
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: 0
+
+      - name: Collect Evidence & Evaluate SP 800-190 Initiative
+        uses: scribe-security/action-verify@main
+        with:
+          initiative: sp-800-190@v2
+          target: ${{ github.sha }}
+          bom: true                   # Generate CycloneDX SBOM
+          base-image: Dockerfile      # Include base image in SBOM
+          input: sarif:trivy-report.sarif
+          input-format: attest 
+          beautify: true
+```
+
+> **Note:** Enabling `bom`, `provenance`, or `input` flags ensures Valint generates and ingests the necessary evidence before policy evaluation.
+
 
 ### Configuration
 If you prefer using a custom configuration file instead of specifying arguments directly, you have two choices. You can either place the configuration file in the default path, which is `.valint.yaml`, or you can specify a custom path using the `config` argument.
@@ -724,8 +791,7 @@ jobs:
       - name:  Generate evidence step
       
       # uses: scribe-security/action-evidence@master
-      # uses: scribe-security/action-slsa@master
-      
+        # uses: scribe-security/action-slsa@master
       - uses: scribe-security/action-bom@master
         with:
           target: [target]
