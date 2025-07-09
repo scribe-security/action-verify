@@ -51,6 +51,8 @@ inputs:
     description: Disable certificate revocation verificatoin
   email:
     description: Default policy allowed emails
+  exit-code:
+    description: Exit code to use when policy violations occur (-1 = ignore and keep original status, 0 = succeed regardless, 1-255 = fail with that code)
   force:
     description: Force skip cache
   format:
@@ -193,6 +195,7 @@ runs:
     - ${{ inputs.depth && '--depth=' }}${{ inputs.depth }}
     - ${{ inputs.disable-crl && '--disable-crl=' }}${{ inputs.disable-crl }}
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
+    - ${{ inputs.exit-code && '--exit-code=' }}${{ inputs.exit-code }}
     - ${{ inputs.force && '--force=' }}${{ inputs.force }}
     - ${{ inputs.format && '--format=' }}${{ inputs.format }}
     - ${{ inputs.git-auth && '--git-auth=' }}${{ inputs.git-auth }}
