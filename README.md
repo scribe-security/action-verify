@@ -182,7 +182,7 @@ Containerized action can be used on Linux runners as following
 ```yaml
 - name: valint verify
   id: valint_verify
-  uses: scribe-security/action-verify@v2.0.1
+  uses: scribe-security/action-verify@v2.0.6
   with:
       target: 'busybox:latest'
 ```
@@ -190,7 +190,7 @@ Containerized action can be used on Linux runners as following
 Composite Action can be used on Linux or Windows runners as following
 ```yaml
 - name: Generate cyclonedx json SBOM
-  uses: scribe-security/action-verify-cli@v2.0.1
+  uses: scribe-security/action-verify-cli@v2.0.6
   with:
     target: 'hello-world:latest'
 ```
@@ -747,7 +747,7 @@ Install Valint as a tool:
 
 ### Alternative evidence stores
 
-> You can learn more about alternative stores **[here](https://scribe-security.netlify.app/docs/integrating-scribe/other-evidence-stores)**.
+> You can learn more about alternative stores **[here](https://scribe-security.github.io/docs/integrating-scribe/other-evidence-stores)**.
 
 <details>
   <summary> <b> OCI Evidence store </b></summary>
