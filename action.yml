@@ -53,6 +53,12 @@ inputs:
     description: Default policy allowed emails
   exit-code:
     description: Exit code to use when policy violations occur (-1 = ignore and keep original status, 0 = succeed regardless, 1-255 = fail with that code)
+  filter-purl:
+    description: Filter out purls by regex
+  filter-regex:
+    description: Filter out files by regex
+  filter-scope:
+    description: Filter packages by scope
   force:
     description: Force skip cache
   format:
@@ -170,7 +176,7 @@ inputs:
     description: Log verbosity level [-v,--verbose=1] = info, [-vv,--verbose=2] = debug
 runs:
   using: docker
-  image: docker://scribesecurity/valint:v2.0.6
+  image: docker://scribesecurity/valint:v2.0.7
   args:
     - verify
     - ${{ inputs.target }}
@@ -196,6 +202,9 @@ runs:
     - ${{ inputs.disable-crl && '--disable-crl=' }}${{ inputs.disable-crl }}
     - ${{ inputs.email && '--email=' }}${{ inputs.email }}
     - ${{ inputs.exit-code && '--exit-code=' }}${{ inputs.exit-code }}
+    - ${{ inputs.filter-purl && '--filter-purl=' }}${{ inputs.filter-purl }}
+    - ${{ inputs.filter-regex && '--filter-regex=' }}${{ inputs.filter-regex }}
+    - ${{ inputs.filter-scope && '--filter-scope=' }}${{ inputs.filter-scope }}
     - ${{ inputs.force && '--force=' }}${{ inputs.force }}
     - ${{ inputs.format && '--format=' }}${{ inputs.format }}
     - ${{ inputs.git-auth && '--git-auth=' }}${{ inputs.git-auth }}
